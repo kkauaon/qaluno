@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
 import { Button, Divider, SegmentedButtons, Text } from "react-native-paper";
-import MMKV from "../API/Database.ts";
-import { IAula, IAvaliacao, IDiario } from "../API/APITypes.ts";
+import MMKV from "../api/Database.ts";
+import { IAula, IAvaliacao, IDiario } from "../api/APITypes.ts";
 import { Circle, G, Svg } from "react-native-svg";
-import { corNota, corNotaTexto, escalarNota, randomHexColor } from "../Helpers/Util";
+import { corNota, corNotaTexto, escalarNota, randomHexColor } from "../helpers/Util.ts";
 
 // @ts-ignore
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { ListarAulas } from "../API/QAPI.ts";
+import { ListarAulas } from "../api/API.ts";
 
 const calculaFreqGrafico = (total: number, dadas: number) => {
     const percentage = (dadas / total) * 100;

@@ -7,7 +7,7 @@ export interface IDiario {
     periodoTurma: number,
     turma: string,
     professor: string|null,
-    conceito: null,
+    conceito: string|null,
     avaliacao: string,
     totalAulasDadas: number,
     totalFaltas: number,
@@ -95,7 +95,7 @@ export interface IAula {
     faltasAbonadas: number,
     processada: boolean,
     urlAulaGravada: boolean,
-    videosAulaGravada: string[],
+    videosAulaGravada: unknown[],
     statusIcone: number,
     sitAulaMinistrada: number,
     dtAulaMinistrada: string
@@ -127,14 +127,28 @@ export interface IAluno {
     login: string,
     matricula: string,
     menorDeIdade: boolean,
-    nivelEnsino: "T"|string,
+    nivelEnsino: string,
     nomePessoa: string,
-    redefinicaoSenhaObrigatoria: 0|1,
-    sexo: "M"|"F"|string,
-    tipoUsuario: 1|number,
+    redefinicaoSenhaObrigatoria: ESimNao,
+    sexo: string,
+    tipoUsuario: ETipoUsuario,
     webappPedidoMatriculaLiberado: boolean
 }
 
 export interface IVersionHistory {
     latest: number
+}
+
+export enum ESimNao {
+    Sim = 1,
+    Nao = 0
+}
+
+export enum ETipoUsuario {
+    Aluno = 1,
+    Professor = 2,
+    Empresa = 3,
+    TecnicoAdministrativo = 4,
+    Egresso = 5,
+    PaisDeAluno = 8
 }

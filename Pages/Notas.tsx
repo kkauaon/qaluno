@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, Linking, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet, ToastAndroid, TouchableNativeFeedback, View } from "react-native";
-import { Banner, Button, DataTable, Dialog, Divider, Portal, Text, TouchableRipple, useTheme } from "react-native-paper";
-import { Circle, G, Svg } from "react-native-svg";
-import { Avaliacoes, Boletim, Login } from '../API/QAPI.ts';
-import { IDiario, IVersionHistory } from "../API/APITypes.ts";
-import MMKV from "../API/Database.ts";
+import { Linking, RefreshControl, SafeAreaView, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
+import { Banner, Button, Dialog, Portal, Text, useTheme } from "react-native-paper";
+import { Avaliacoes, Boletim, Login } from '../api/API.ts';
+import { IDiario, IVersionHistory } from "../api/APITypes.ts";
+import MMKV from "../api/Database.ts";
 import { useFocusEffect } from "@react-navigation/native";
-import Diario from "../Components/Diario.tsx";
+import Diario from "../components/Diario.tsx";
 import { useMMKVString } from "react-native-mmkv";
 
-// @ts-ignore
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { APP_VERSION } from "../Helpers/Util.ts";
+import { APP_VERSION, DEFAULT_SEMESTRE } from "../helpers/Util.ts";
+
+import analytics from '@react-native-firebase/analytics';
 
 // @ts-ignore
 export default function Grades({ navigation }): React.JSX.Element {
@@ -37,7 +37,7 @@ export default function Grades({ navigation }): React.JSX.Element {
     )
 
     useEffect(() => {
-        if (!sem) setSem("2024.1")
+        if (!sem) setSem(DEFAULT_SEMESTRE)
 
         const d = MMKV.getString(`semestre.${sem}`)
         
@@ -57,7 +57,7 @@ export default function Grades({ navigation }): React.JSX.Element {
             Boletim(sem.split(".")[0], sem.split(".")[1]).then(async dataa => {
                 setData(dataa)
                 MMKV.set(`semestre.${sem}`, JSON.stringify(dataa))
-
+                await analytics().logEvent('recarregar_presencas').catch((e) => console.log(e))
                 setRefreshing(false);
             }).catch(() => {
                 setRefreshing(false);
@@ -86,6 +86,8 @@ export default function Grades({ navigation }): React.JSX.Element {
 
             setData(dataa)
             MMKV.set(`semestre.${sem}`, JSON.stringify(dataa))
+
+            await analytics().logEvent('recarregar_notas').catch((e) => console.log(e))
 
             setRefreshing(false);
         }).catch(() => {

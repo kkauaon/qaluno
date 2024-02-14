@@ -18,7 +18,7 @@ import {
 	View,
 } from 'react-native';
 
-import { PaperProvider, adaptNavigationTheme, useTheme } from 'react-native-paper';
+import { Appbar, PaperProvider, adaptNavigationTheme, useTheme } from 'react-native-paper';
 
 import { NavigationContainer } from '@react-navigation/native';
 
@@ -35,13 +35,13 @@ import {
 import { createMaterialBottomTabNavigator } from 'react-native-paper/react-navigation';
 // @ts-ignore: Typings.
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Grades from './Pages/Grades';
-import Home from './Pages/Home';
+import Notas from './pages/Notas';
+import Turma from './pages/Turma';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Entrar from './Pages/Entrar';
-import Materials from './Pages/Materials';
-import Disciplina from './Pages/Disciplina';
+import Login from './pages/Login';
+import Materiais from './pages/Materiais';
+import Disciplina from './pages/Disciplina';
 
 const Stack = createNativeStackNavigator();
 
@@ -77,7 +77,7 @@ function App(): React.JSX.Element {
 			<PaperProvider theme={isDarkMode ? CombinedDarkTheme : CombinedDefaultTheme}>
 				<NavigationContainer theme={isDarkMode ? NavigationDarkTheme : CombinedDefaultTheme}>
 					<Stack.Navigator screenOptions={{ headerShown: false }}>
-						<Stack.Screen name="Login" component={Entrar} />
+						<Stack.Screen name="Login" component={Login} />
 						<Stack.Screen name="Home" component={Tabs} />
 						<Stack.Screen name="Disciplina" component={Disciplina} />
 					</Stack.Navigator>
@@ -95,7 +95,7 @@ function Tabs(): React.JSX.Element {
 		<Tab.Navigator initialRouteName='Grades' theme={isDarkMode ? MD3DarkTheme : MD3LightTheme}>
 			<Tab.Screen
 				name="Class"
-				component={Home}
+				component={Turma}
 				options={{
 					tabBarLabel: 'Turma',
 					tabBarIcon: ({ color }) => (
@@ -105,7 +105,7 @@ function Tabs(): React.JSX.Element {
 			/>
 			<Tab.Screen
 				name="Grades"
-				component={Grades}
+				component={Notas}
 				options={{
 					tabBarLabel: 'Notas',
 					tabBarIcon: ({ color }) => (
@@ -115,7 +115,7 @@ function Tabs(): React.JSX.Element {
 			/>
 			<Tab.Screen
 				name="Materials"
-				component={Materials}
+				component={Materiais}
 				options={{
 					tabBarLabel: 'Materiais',
 					tabBarIcon: ({ color }) => (

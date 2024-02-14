@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, View } from "react-native"
-import { IAvaliacao, IDiario } from "../API/APITypes.ts"
+import { IAvaliacao, IDiario } from "../api/APITypes.ts"
 import { Divider, Text } from "react-native-paper"
 import { Circle, G, Svg } from "react-native-svg"
-import { corNota, corNotaTexto, escalarNota, randomHexColor } from "../Helpers/Util"
+import { corNota, corNotaTexto, escalarNota, randomHexColor } from "../helpers/Util.ts"
 import { useEffect, useState } from "react"
 import { useMMKVString } from "react-native-mmkv"
 
@@ -24,7 +24,6 @@ export default function Diario({ diario, show, saved, navigation }: DiarioProps)
     const [ava, setAva] = useState<IAvaliacao[]>([])
 
     useEffect(() => {
-        console.log(aval)
         const parsed = JSON.parse(aval || "[]") as IAvaliacao[]
 
         if (parsed != ava && saved != aval && parsed.length > 0 && parsed.some(l => l.nota != null)) {
@@ -47,13 +46,13 @@ export default function Diario({ diario, show, saved, navigation }: DiarioProps)
                     <Text variant="titleMedium">{diario.descricao}</Text>
                 </View>
                 <View style={styles.notas}>
-                    <Text variant="labelLarge">{ava.filter(d => d.idEtapa == '2B' && d.tipoAvaliacao == 0).length > 0 ? 'N2' : 'N1'}</Text>
+                    <Text variant="labelLarge">{ava.filter(d => d.idEtapa == '2B' && d.tipoAvaliacao == 0 && d.nota != null).length > 0 ? 'N2' : 'N1'}</Text>
                     <Text variant="labelLarge">Nota</Text>
                 </View>                
             </Pressable>
 
             <Divider style={{ marginHorizontal: -20 }} />
-            {ava.filter(d => d.idEtapa == '2B' && d.tipoAvaliacao == 0).length > 0 ? ava.filter(d => d.tipoAvaliacao == 0 && d.idEtapa != '1B').map(etapa => {
+            {ava.filter(d => d.idEtapa == '2B' && d.tipoAvaliacao == 0 && d.nota != null).length > 0 ? ava.filter(d => d.tipoAvaliacao == 0 && d.idEtapa != '1B').map(etapa => {
                 return (
                     <View key={etapa.id}><Divider style={{ marginHorizontal: -20 }} /><Pressable style={styles.notas} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }} onPress={() => navega()}>
                         <View style={styles.VStack}>
@@ -65,7 +64,7 @@ export default function Diario({ diario, show, saved, navigation }: DiarioProps)
                         </View> : <Text>-</Text>}
                     </Pressable></View>
                 )
-            }) : ava.filter(d => d.tipoAvaliacao == 0).map(etapa => {
+            }) : ava.filter(d => d.tipoAvaliacao == 0 && d.idEtapa == '1B').map(etapa => {
                 return (
                     <View key={etapa.id}><Divider style={{ marginHorizontal: -20 }} /><Pressable style={styles.notas} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }} onPress={() => navega()}>
                         <View style={styles.VStack}>

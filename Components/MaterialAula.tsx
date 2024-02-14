@@ -1,12 +1,12 @@
 import { Linking, Pressable, StyleSheet, ToastAndroid, View } from "react-native"
-import { IDiario, IMaterialDeAula } from "../API/APITypes.ts"
+import { IDiario, IMaterialDeAula } from "../api/APITypes.ts"
 import { Divider, Text } from "react-native-paper"
 import { useMMKVString } from "react-native-mmkv"
 import { useEffect, useState } from "react"
-import { compararDatas, randomHexColor } from "../Helpers/Util"
+import { compararDatas, randomHexColor } from "../helpers/Util.ts"
 // @ts-ignore
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { LinkMaterialDeAula } from "../API/QAPI"
+import { LinkMaterialDeAula } from "../api/API.ts"
 
 type MaterialAulaProps = { diario: IDiario, saved: string, show: (msg: string) => void }
 
@@ -18,7 +18,6 @@ export default function MaterialAula({ diario, show, saved }: MaterialAulaProps)
     useEffect(() => {
         const parsed = JSON.parse(aval || "[]") as IMaterialDeAula[]
 
-        console.log(parsed)
         if (parsed != ava && saved != aval && parsed.length >0) {
             show(diario.descricao)
         }

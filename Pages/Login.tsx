@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button, Text, TextInput } from "react-native-paper";
-import { SafeAreaView, ToastAndroid } from "react-native";
-import { HorarioIndividual, Login } from "../API/QAPI";
-import MMKV from "../API/Database.ts";
-import { useNavigation } from "@react-navigation/native";
-
+import { SafeAreaView, ToastAndroid, Image } from "react-native";
+import { HorarioIndividual, Login } from "../api/API.ts";
+import MMKV from "../api/Database.ts";
+import { DEFAULT_SEMESTRE } from "../helpers/Util.ts";
 // @ts-ignore
 export default function Entrar({ navigation }): React.JSX.Element {
     const [matr, setMatr] = useState<string>("")
@@ -39,8 +38,8 @@ export default function Entrar({ navigation }): React.JSX.Element {
                 let sem = MMKV.getString("current")
 
                 if (!sem) {
-                    MMKV.set("current", "2024.1")
-                    sem = "2024.1"
+                    MMKV.set("current", DEFAULT_SEMESTRE)
+                    sem = DEFAULT_SEMESTRE
                 }
 
                 // @ts-ignore
@@ -52,8 +51,7 @@ export default function Entrar({ navigation }): React.JSX.Element {
                 // @ts-ignore
                 navigation.replace("Home")
             }).catch((err) => {
-                console.error(err)
-                ToastAndroid.show("Falha no login", ToastAndroid.SHORT)
+                ToastAndroid.show(err, ToastAndroid.LONG)
                 setRefreshing(false);
             })            
         } else {
@@ -63,8 +61,10 @@ export default function Entrar({ navigation }): React.JSX.Element {
     }
 
     return (
-        <SafeAreaView style={{ flex: 1, display: 'flex', flexDirection: 'column', rowGap: 30, justifyContent: 'center', alignItems: 'center' }}>
+        <SafeAreaView style={{ flex: 1, display: 'flex', flexDirection: 'column', rowGap: 20, justifyContent: 'center', alignItems: 'center' }}>
+            <Image source={require('../img/app_icon.png')} style={{ width: 128, height: 128 }} />
             <Text variant="displayMedium">QAluno</Text>
+            <Text variant="titleMedium">Aplicativo não oficial do Q-Acadêmico para IFCE</Text>
             <TextInput
                 label="Matrícula"
                 style={{ width: "80%" }}

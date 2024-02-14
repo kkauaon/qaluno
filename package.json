@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@react-native-cookies/cookies": "^6.2.1",
+    "@react-native-firebase/analytics": "^18.8.0",
+    "@react-native-firebase/app": "^18.8.0",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
     "react": "18.2.0",

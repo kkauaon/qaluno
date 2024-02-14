@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, ToastAndroid, View, useWindowDimensions, Text as RNText } from "react-native";
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, ToastAndroid, View, useWindowDimensions } from "react-native";
 import { RefreshControl } from "react-native-gesture-handler";
-import { Banner, Button, Dialog, Portal, Text } from "react-native-paper";
-import { HorarioIndividual } from "../API/QAPI";
-import { IAluno, IHorario } from "../API/APITypes.ts";
-import MMKV from "../API/Database.ts";
-import { randomHexColor } from "../Helpers/Util";
+import { Button, Dialog, Menu, Portal, Text } from "react-native-paper";
+import { HorarioIndividual } from "../api/API.ts";
+import { IAluno, IHorario } from "../api/APITypes.ts";
+import MMKV from "../api/Database.ts";
+import { DEFAULT_SEMESTRE, randomHexColor } from "../helpers/Util.ts";
 import { useMMKVString } from "react-native-mmkv";
-// @ts-ignore
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import analytics from '@react-native-firebase/analytics';
 
 function horarioParaNumero(h: string): number {
 	const j = h.split(":")
@@ -50,7 +49,6 @@ function preenchaArray(arr: IHorario[], qtd: number): IHorario[] {
 	// Ordena a array pelo diaSem para garantir que os elementos estão na ordem correta
 	n.sort((a, b) => a.diaSem - b.diaSem);
   
-	// Limita o comprimento da array para qtd, se necessário
 	return n;
 }
 
@@ -68,7 +66,7 @@ export default function Home({ navigation }): React.JSX.Element {
 	const [cores,setCores] = useState<{id:number,c:string}[]>([])
 
     useEffect(() => {
-		if (!sem) setSem("2024.1")
+		if (!sem) setSem(DEFAULT_SEMESTRE)
 
         const d = MMKV.getString(`horarios.${sem}`)
 
@@ -90,9 +88,9 @@ export default function Home({ navigation }): React.JSX.Element {
 
 		// @ts-ignore
 		HorarioIndividual(sem.split(".")[0], sem.split(".")[1]).then(data => {
-			console.log(data.horarios)
 			setHorarios(data.horarios)
 			MMKV.set(`horarios.${sem}`, JSON.stringify(data.horarios))
+			analytics().logEvent('recarregar_horarios').catch((e) => console.log(e))
 			setRefreshing(false)
 		}).catch(err => {
             ToastAndroid.show("Entre novamente", ToastAndroid.SHORT)
@@ -119,10 +117,15 @@ export default function Home({ navigation }): React.JSX.Element {
 		return dd.find(d => d.id == id)?.c || "#fff"
 	}
 
+	// Dialog ao clicar em um horário
 	const [visible, setVisible] = useState(false);
-	const [banner, setBanner] = useState(true);
 	const [horarioDialogData, setHorarioDialogData] = useState<IHorario|null>(null)
 	const hideDialog = () => setVisible(false);
+
+	// Menu de mudar semestre
+	const [menuVisible, setMenuVisible] = useState(false);
+	const openMenu = () => setMenuVisible(true);
+	const closeMenu = () => setMenuVisible(false);
 
 	const mudaSemestre = (semestr: string) => {
 		setSem(semestr)
@@ -163,18 +166,18 @@ export default function Home({ navigation }): React.JSX.Element {
 						)}
 					</View>
 				)}
-				<Text variant="titleLarge">{"\n"}Mudar semestre</Text>
-				<View style={{ ...styles.VStack, rowGap: 15 }}>
-					{["2024.1","2023.2","2023.1"].map((s, i) => 
-						<Button key={i} icon="swap-horizontal-bold" mode="contained-tonal" onPress={() => mudaSemestre(s)} >
-							{s}
-						</Button>
-					)}					
-				</View>
 				<Text variant="titleLarge">{"\n"}Informações do Aluno</Text>
 				<Text variant="titleMedium">Nome: {aluno?.nomePessoa}</Text>
 				<Text variant="titleMedium">Curso: {aluno?.descCurso}</Text>
-				<Text variant="titleMedium">Matrícula: {aluno?.matricula}</Text>
+				<Text variant="titleMedium">Matrícula: {aluno?.matricula} {"\n"}</Text>
+				<Menu
+					visible={menuVisible}
+					onDismiss={closeMenu}
+					anchor={<Button mode="contained-tonal" onPress={openMenu}>Mudar semestre</Button>}>
+					{["2024.2","2024.1","2023.2","2023.1","2022.2","2022.1"].map((it, idx) => 
+						<Menu.Item key={idx} onPress={() => { mudaSemestre(it), setMenuVisible(false) }} title={it} />
+					)}
+				</Menu>
 			</SafeAreaView>
 		</ScrollView>
 	)
