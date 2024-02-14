@@ -92,7 +92,7 @@ android {
             keyPassword 'android'
         }
         release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+            if (project.hasProperty('QALUNO_UPLOAD_STORE_FILE')) {
                 storeFile file(QALUNO_UPLOAD_STORE_FILE)
                 storePassword QALUNO_UPLOAD_STORE_PASSWORD
                 keyAlias QALUNO_UPLOAD_KEY_ALIAS
