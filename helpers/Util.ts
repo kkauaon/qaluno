@@ -51,4 +51,4 @@ export const corNotaTexto = (num: number): string => {
 
 export const DEFAULT_SEMESTRE = "2024.1"
 export const QACADEMICO_BASE_URL = 'https://novo.qacademico.ifce.edu.br'
-export const APP_VERSION = 2;
+export const APP_VERSION = 3;
