@@ -9,3 +9,14 @@ Aplicativo não-oficial do Q-Acadêmico.
 Horários de Aula           |  Disciplinas e Notas      |  Material de Aula
 :-------------------------:|:-------------------------:|:-------------------------:
 ![Horários de Aula](https://cdn.discordapp.com/attachments/852655974124879944/1203746303222227015/Screenshot_20240204_135524_QAluno.jpg)|![Disciplinas e Notas](https://cdn.discordapp.com/attachments/852655974124879944/1203746302702125067/Screenshot_20240204_135339_QAluno.jpg)|![Material de Aula](https://cdn.discordapp.com/attachments/852655974124879944/1203746302957981696/Screenshot_20240204_135446_QAluno.jpg)
+
+## Desenvolvimento
+Iniciar o aplicativo em modo desenvolvimento: `yarn start` ou `npm run start`
+
+Gerar APKs para produção: `yarn android --mode release` ou `npm run android -- --mode="release"`
+
+Para gerar APKs de produção, você precisa [gerar uma keystore](https://reactnative.dev/docs/signed-apk-android#generating-an-upload-key) e inserir as seguintes variáveis no `gradle.properties` de acordo com a sua keystore:
+- `QALUNO_UPLOAD_STORE_FILE`
+- `QALUNO_UPLOAD_KEY_ALIAS`
+- `QALUNO_UPLOAD_STORE_PASSWORD`
+- `QALUNO_UPLOAD_KEY_PASSWORD`
