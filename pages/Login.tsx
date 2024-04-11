@@ -4,6 +4,9 @@ import { SafeAreaView, ToastAndroid, Image } from "react-native";
 import { HorarioIndividual, Login } from "../api/API.ts";
 import MMKV from "../api/Database.ts";
 import { DEFAULT_SEMESTRE } from "../helpers/Util.ts";
+
+import analytics from '@react-native-firebase/analytics';
+
 // @ts-ignore
 export default function Entrar({ navigation }): React.JSX.Element {
     const [matr, setMatr] = useState<string>("")
@@ -11,6 +14,8 @@ export default function Entrar({ navigation }): React.JSX.Element {
     const [refreshing, setRefreshing] = useState(false)
 
     useEffect(() => {
+        if (!__DEV__) analytics().setAnalyticsCollectionEnabled(true);
+
         const islog = MMKV.getBoolean("logged")
         if (islog) {
             navigation.replace("Home")

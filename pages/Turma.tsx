@@ -90,7 +90,7 @@ export default function Home({ navigation }): React.JSX.Element {
 		HorarioIndividual(sem.split(".")[0], sem.split(".")[1]).then(data => {
 			setHorarios(data.horarios)
 			MMKV.set(`horarios.${sem}`, JSON.stringify(data.horarios))
-			analytics().logEvent('recarregar_horarios').catch((e) => console.log(e))
+			if (!__DEV__) analytics().logEvent('recarregar_horarios').catch((e) => console.log(e))
 			setRefreshing(false)
 		}).catch(err => {
             ToastAndroid.show("Entre novamente", ToastAndroid.SHORT)

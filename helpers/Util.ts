@@ -1,6 +1,8 @@
 export function randomHexColor(): string {
-    const color = "hsl(" + Math.random() * 360 + ", 100%, 75%)";
-    return color;
+    const hue = Math.floor(Math.random() * 360)
+    const saturation = 50 + Math.floor(Math.random() * 40)
+    const luminosity = 25 + Math.floor(Math.random() * 40)
+    return `hsl(${hue}, ${saturation}%, ${luminosity}%)`
 };
 
 export function escalarNota(nota: number, escalaOriginalMax: number, escalaDesejadaMax: number): number {

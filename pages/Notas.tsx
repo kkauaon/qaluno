@@ -57,7 +57,7 @@ export default function Grades({ navigation }): React.JSX.Element {
             Boletim(sem.split(".")[0], sem.split(".")[1]).then(async dataa => {
                 setData(dataa)
                 MMKV.set(`semestre.${sem}`, JSON.stringify(dataa))
-                await analytics().logEvent('recarregar_presencas').catch((e) => console.log(e))
+                if (!__DEV__) await analytics().logEvent('recarregar_presencas').catch((e) => console.log(e))
                 setRefreshing(false);
             }).catch(() => {
                 setRefreshing(false);

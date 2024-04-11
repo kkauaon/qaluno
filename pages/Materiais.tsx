@@ -53,7 +53,7 @@ export default function Materials({ navigation }): React.JSX.Element {
 
             setData(dataa)
             MMKV.set(`semestre.${sem}`, JSON.stringify(dataa))
-            await analytics().logEvent('recarregar_materiais').catch((e) => console.log(e))
+            if (!__DEV__) await analytics().logEvent('recarregar_materiais').catch((e) => console.log(e))
             setRefreshing(false);
         }).catch(() => {
             ToastAndroid.show("Entre novamente", ToastAndroid.SHORT)
@@ -61,12 +61,11 @@ export default function Materials({ navigation }): React.JSX.Element {
             MMKV.set(`logged`, false)
             navigation.replace("Login")
         })
-
     }, []);
     
     return (
 		<ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} style={{ flex: 1 }}>
-			<Portal>
+		    <Portal>
 				<Dialog visible={visible} onDismiss={hideDialog}>
                     <Dialog.Title>Novo material em</Dialog.Title>
                     <Dialog.Content>
