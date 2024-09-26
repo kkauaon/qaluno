@@ -9,7 +9,7 @@ import Diario from "../components/Diario.tsx";
 import { useMMKVString } from "react-native-mmkv";
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { APP_VERSION, DEFAULT_SEMESTRE } from "../helpers/Util.ts";
+import { APP_VERSION, DEFAULT_SEMESTRE, randomHexColor } from "../helpers/Util.ts";
 
 import analytics from '@react-native-firebase/analytics';
 
@@ -40,9 +40,11 @@ export default function Grades({ navigation }): React.JSX.Element {
         if (!sem) setSem(DEFAULT_SEMESTRE)
 
         const d = MMKV.getString(`semestre.${sem}`)
-        
+        let registeredData: IDiario[];
+
         if (d) {
-            setData(JSON.parse(d) as IDiario[])
+            registeredData = JSON.parse(d) as IDiario[]
+            setData(registeredData)
         } else {
             setData([])
         }
@@ -50,11 +52,21 @@ export default function Grades({ navigation }): React.JSX.Element {
         
         // Produção apenas ----
 
+        if (!__DEV__) {}
         setRefreshing(true);
         //@ts-ignore
         Login(MMKV.getString("matricula"), MMKV.getString("senha")).then(() => {
             // @ts-ignore
             Boletim(sem.split(".")[0], sem.split(".")[1]).then(async dataa => {
+                for (let i = 0; i < dataa.length; i++) {
+                    if (registeredData && !registeredData[i].cor) {
+                        console.log(`Atribuindo cor para ${dataa[i].descricao}`)
+                        dataa[i].cor = randomHexColor();
+                    } else if (registeredData && registeredData[i].cor) {
+                        dataa[i].cor = registeredData[i].cor
+                    }
+                }
+
                 setData(dataa)
                 MMKV.set(`semestre.${sem}`, JSON.stringify(dataa))
                 if (!__DEV__) await analytics().logEvent('recarregar_presencas').catch((e) => console.log(e))
@@ -75,6 +87,13 @@ export default function Grades({ navigation }): React.JSX.Element {
     const onRefresh = useCallback((isSecondTry?: boolean) => {
         setRefreshing(true);
 
+        const d = MMKV.getString(`semestre.${sem}`)
+        let registeredData: IDiario[];
+
+        if (d) {
+            registeredData = JSON.parse(d) as IDiario[]
+        }
+
         // @ts-ignore
         Boletim(sem.split(".")[0], sem.split(".")[1]).then(async dataa => {
             for (const dz of dataa) {
@@ -82,6 +101,15 @@ export default function Grades({ navigation }): React.JSX.Element {
 
                 if (data2)
                     MMKV.set(`avaliacoes.${dz.idDiario}`, JSON.stringify(data2))
+            }
+
+            for (let i = 0; i < dataa.length; i++) {
+                if (registeredData && !registeredData[i].cor) {
+                    console.log(`Atribuindo cor para ${dataa[i].descricao}`)
+                    dataa[i].cor = randomHexColor();
+                } else if (registeredData && registeredData[i].cor) {
+                    dataa[i].cor = registeredData[i].cor
+                }
             }
 
             setData(dataa)

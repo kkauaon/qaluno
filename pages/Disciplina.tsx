@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, ToastAndroid, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, ToastAndroid, Touchable, TouchableHighlight, View } from "react-native";
 import { Button, Divider, SegmentedButtons, Text } from "react-native-paper";
 import MMKV from "../api/Database.ts";
 import { IAula, IAvaliacao, IDiario } from "../api/APITypes.ts";
@@ -20,6 +20,28 @@ const calculaFreqGrafico = (total: number, dadas: number) => {
 const radius = 90;
 const circleCircumference = 2 * Math.PI * radius;
 
+type ContainerNotaProps = { etapa: IAvaliacao };
+function ContainerNota({ etapa }: ContainerNotaProps): React.JSX.Element {
+    return (
+        <View key={etapa.id}>
+            <Divider style={{ marginHorizontal: -20 }} />
+            <View style={styles.notas} >
+                <Pressable onPress={() => ToastAndroid.show(etapa.descricao, ToastAndroid.SHORT)} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }} style={{...styles.VStack, minWidth: "60%", maxWidth: "60%"}}>
+                    <Text numberOfLines={1}>{etapa.descricao}</Text>
+                    <Text numberOfLines={1}>{new Date(etapa.data||"1969").toLocaleDateString()}</Text>
+                </Pressable>
+                <Text>{etapa.notaMaxima.toLocaleString(undefined, { minimumFractionDigits: 1 })}</Text>
+                {etapa.nota ? 
+                    <View style={{ ...styles.nota, backgroundColor: corNota(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>
+                        <Text style={{ fontWeight: "bold", textAlign: "center", color: corNotaTexto(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>{etapa.nota.toLocaleString(undefined, { minimumFractionDigits: 1 })}</Text>
+                    </View> 
+                    : <Text style={{ width: 40, textAlign: "center"}}>  -</Text>
+                }
+            </View>
+        </View>
+    )
+}
+
 // @ts-ignore
 export default function Disciplina({ route, navigation }): React.JSX.Element {
     const { diario }: { diario: IDiario } = route.params
@@ -31,6 +53,7 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
 
     useEffect(() => {
         setAva(JSON.parse(MMKV.getString(`avaliacoes.${diario.idDiario}`)||"[]") as IAvaliacao[])
+        console.log(diario.etapas)
     }, [])
 
     const carregarAulas = () => {
@@ -49,7 +72,7 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
             <SafeAreaView style={{ padding: 20 }}>
                 <View style={{ marginHorizontal: -20, paddingHorizontal: 20, paddingVertical: 5 }} >
                     <View style={{ display: "flex", flexDirection: "row", columnGap: 10, alignItems: "center" }}>
-                        <View style={{ ...styles.quadrado, backgroundColor: randomHexColor() }}></View>
+                        <View style={{ ...styles.quadrado, backgroundColor: diario.cor || randomHexColor() }}></View>
                         <Text variant="titleLarge">{diario.descricao}</Text>
                     </View>               
                 </View>
@@ -76,64 +99,38 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
 
                 {value == 'notas' ? 
                 <View>
+                    { /* Provas de tipo N1 (1B) */ }
                     <View style={styles.notas}>
-                        <Text variant="labelLarge">N1</Text>
+                        <Text style={{...styles.VStack, minWidth: "60%", maxWidth: "60%"}} variant="labelLarge">N1</Text>
+                        <Text variant="labelLarge">Máx.</Text>
                         <Text variant="labelLarge">Nota</Text>
                     </View> 
                     <Divider style={{ marginHorizontal: -20 }} />
                     <Divider style={{ marginHorizontal: -20 }} />
                     {ava.filter(d => d.tipoAvaliacao == 0 && d.idEtapa == '1B').map(etapa => {
-                        return (
-                            <View key={etapa.id}><Divider style={{ marginHorizontal: -20 }} /><View style={styles.notas} >
-                                <View style={styles.VStack}>
-                                    <Text numberOfLines={1} style={{ minWidth: "85%", maxWidth: "85%" }}>{etapa.descricao}</Text>
-                                    <Text numberOfLines={1}>{new Date(etapa.data||"1969").toLocaleDateString()}</Text>
-                                </View>
-                                {etapa.nota ? <View style={{ ...styles.nota, backgroundColor: corNota(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>
-                                    <Text style={{ textAlign: "center", color: corNotaTexto(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>{etapa.nota}</Text>
-                                </View> : <Text>-</Text>}
-                            </View></View>
-                        )
+                        return <ContainerNota key={etapa.id} etapa={etapa} />
                     })}
+                    { /* Provas de tipo N2 (2B) */ }
                     <View style={styles.notas}>
-                        <Text variant="labelLarge">N2</Text>
+                        <Text style={{...styles.VStack, minWidth: "60%", maxWidth: "60%"}} variant="labelLarge">N2</Text>
+                        <Text variant="labelLarge">Máx.</Text>
                         <Text variant="labelLarge">Nota</Text>
                     </View> 
                     <Divider style={{ marginHorizontal: -20 }} />
                     {ava.filter(d => d.tipoAvaliacao == 0 && d.idEtapa == '2B').map(etapa => {
-                        return (
-                            <View key={etapa.id}><Divider style={{ marginHorizontal: -20 }} /><View style={styles.notas} >
-                                <View style={styles.VStack}>
-                                    <Text numberOfLines={1} style={{ minWidth: "85%", maxWidth: "85%" }}>{etapa.descricao}</Text>
-                                    <Text numberOfLines={1}>{new Date(etapa.data||"1969").toLocaleDateString()}</Text>
-                                </View>
-                                {etapa.nota ? <View style={{ ...styles.nota, backgroundColor: corNota(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>
-                                    <Text style={{ textAlign: "center", color: corNotaTexto(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>{etapa.nota}</Text>
-                                </View> : <Text>-</Text>}
-                            </View></View>
-                        )
+                        return <ContainerNota key={etapa.id} etapa={etapa} />
                     })}
+                    { /* Provas de tipo AF */ }
                     <View style={styles.notas}>
-                        <Text variant="labelLarge">Outras</Text>
+                        <Text style={{...styles.VStack, minWidth: "60%", maxWidth: "60%"}} variant="labelLarge">Outras avaliações</Text>
+                        <Text variant="labelLarge">Máx.</Text>
                         <Text variant="labelLarge">Nota</Text>
                     </View> 
                     <Divider style={{ marginHorizontal: -20 }} />
                     {ava.filter(d => d.idEtapa != '1B' && d.idEtapa != '2B' && d.tipoAvaliacao != 2).map(etapa => {
-                        return (
-                            <View key={etapa.id}><Divider style={{ marginHorizontal: -20 }} /><View style={styles.notas} >
-                                <View style={styles.VStack}>
-                                    <Text numberOfLines={1} style={{ minWidth: "85%", maxWidth: "85%" }}>{etapa.descricao}</Text>
-                                    <Text numberOfLines={1}>{new Date(etapa.data||"1969").toLocaleDateString()}</Text>
-                                </View>
-                                {etapa.nota ? <View style={{ ...styles.nota, backgroundColor: corNota(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>
-                                    <Text style={{ textAlign: "center", color: corNotaTexto(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>{etapa.nota}</Text>
-                                </View> : <Text>-</Text>}
-                            </View></View>
-                        )
+                        return <ContainerNota key={etapa.id} etapa={etapa} />
                     })}
-                    <Divider style={{ marginHorizontal: -20 }} />
-                    <Divider style={{ marginHorizontal: -20 }} />
-                    <View style={styles.label} >
+                    <View style={{...styles.label, paddingTop: 20}} >
                         <Text variant="labelLarge">Faltas</Text>
                         <View style={styles.faltas}>
                             <Svg height="25" width="25" viewBox="0 0 220 220">
@@ -177,6 +174,22 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
                         <Text variant="labelLarge">% Presenças</Text>
                         <Text variant="labelLarge">{diario.percentualFrequencia}</Text>
                     </View>
+                    <View style={styles.label}>
+                        <Text variant="labelLarge">Média N1</Text>
+                        <Text variant="labelLarge">{diario.etapas.find(e => e.sigla == "N1")?.nota || "-"}</Text>
+                    </View>
+                    <View style={styles.label}>
+                        <Text variant="labelLarge">Média N2</Text>
+                        <Text variant="labelLarge">{diario.etapas.find(e => e.sigla == "N2")?.nota || "-"}</Text>
+                    </View>
+                    <View style={styles.label}>
+                        <Text variant="labelLarge">Média Parcial</Text>
+                        <Text variant="labelLarge">{(diario.etapas.find(e => e.sigla == "N1")?.nota != null && diario.etapas.find(e => e.sigla == "N2")?.nota != null) ? diario.etapas.find(e => e.sigla == "MP")?.nota || "-" : "-"}</Text>
+                    </View>
+                    <View style={styles.label}>
+                        <Text variant="labelLarge">Média Final</Text>
+                        <Text variant="labelLarge">{(diario.etapas.find(e => e.sigla == "N1")?.nota != null && diario.etapas.find(e => e.sigla == "N2")?.nota != null) ? diario.etapas.find(e => e.sigla == "MF")?.nota || "-" : "-"}</Text>
+                    </View>
                 </View> : <View>
                     <Text>{"\n"}</Text>
                     {aulas == null ? <Button disabled={loading} loading={loading} mode="contained" onPress={() => carregarAulas()}>Carregar Aulas</Button> : 
@@ -184,7 +197,12 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
                         {aulas.filter(s => s.processada).map((aula, i) =>
                         <View key={i} style={{ ...styles.aula, borderColor: aula.faltas ? 'red' : 'green' }}>
                             <MaterialCommunityIcons name={aula.faltas ? 'close' : 'check'} size={20} color={aula.faltas ? 'red' : 'green'} />
-                            <Text style={{ minWidth: "90%", maxWidth: "90%" }}>{aula.conteudo}</Text>
+                            <View style={{ minWidth: "90%", maxWidth: "90%" }}>
+                                <Text>{aula.conteudo}</Text>
+                                <Text style={styles.dataaula}>{`Aula ministrada em ${new Date(aula.dtAulaMinistrada).toLocaleDateString()} ${aula.horaInicio.split("T")[1].slice(0, 5)}~${aula.horaTermino.split("T")[1].slice(0, 5)}`}</Text>
+                                <Text style={styles.dataaula}>{`Presenças: ${aula.numeroDeAulas - aula.faltas}/${aula.numeroDeAulas}`}</Text>
+                            </View>
+                            
                         </View>
                         )}
                     </View>}
@@ -199,6 +217,10 @@ const styles = StyleSheet.create({
     VStack: {
         display: 'flex',
         flexDirection: 'column'
+    },
+    dataaula: {
+        fontStyle: 'italic',
+        color: 'gray'
     },
     aula: {
         borderColor: 'green',
@@ -235,7 +257,7 @@ const styles = StyleSheet.create({
         height: 25,
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
     },
     quadrado: {
         backgroundColor: "white",

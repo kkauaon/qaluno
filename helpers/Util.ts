@@ -1,7 +1,7 @@
 export function randomHexColor(): string {
     const hue = Math.floor(Math.random() * 360)
-    const saturation = 50 + Math.floor(Math.random() * 40)
-    const luminosity = 25 + Math.floor(Math.random() * 40)
+    const saturation = 90 + Math.floor(Math.random() * 10)
+    const luminosity = 70 + Math.floor(Math.random() * 10)
     return `hsl(${hue}, ${saturation}%, ${luminosity}%)`
 };
 

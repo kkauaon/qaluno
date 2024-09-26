@@ -13,6 +13,8 @@ const calculaFreqGrafico = (total: number, dadas: number) => {
     return strokeDashoffset
 }
 
+const verificarN1ouN2 = (ava: IAvaliacao[]) => ava.filter(d => d.idEtapa == '2B' && d.tipoAvaliacao == 0 && d.nota != null).length > 0
+
 const radius = 90;
 const circleCircumference = 2 * Math.PI * radius;
 
@@ -42,7 +44,7 @@ export default function Diario({ diario, show, saved, navigation }: DiarioProps)
             <Text variant="labelSmall">{"\n"}</Text>
             <Pressable style={{ marginHorizontal: -20, paddingHorizontal: 20, paddingVertical: 5 }} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }} onPress={() => navega()}>
                 <View style={{ display: "flex", flexDirection: "row", columnGap: 10, alignItems: "center" }}>
-                    <View style={{ ...styles.quadrado, backgroundColor: randomHexColor() }}></View>
+                    <View style={{ ...styles.quadrado, backgroundColor: diario.cor || randomHexColor() }}></View>
                     <Text variant="titleMedium">{diario.descricao}</Text>
                 </View>
                 <View style={styles.notas}>
@@ -52,7 +54,7 @@ export default function Diario({ diario, show, saved, navigation }: DiarioProps)
             </Pressable>
 
             <Divider style={{ marginHorizontal: -20 }} />
-            {ava.filter(d => d.idEtapa == '2B' && d.tipoAvaliacao == 0 && d.nota != null).length > 0 ? ava.filter(d => d.tipoAvaliacao == 0 && d.idEtapa != '1B').map(etapa => {
+            {verificarN1ouN2(ava) ? ava.filter(d => d.tipoAvaliacao == 0 && d.idEtapa != '1B').map(etapa => {
                 return (
                     <View key={etapa.id}><Divider style={{ marginHorizontal: -20 }} /><Pressable style={styles.notas} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }} onPress={() => navega()}>
                         <View style={styles.VStack}>
@@ -60,7 +62,7 @@ export default function Diario({ diario, show, saved, navigation }: DiarioProps)
                             <Text numberOfLines={1}>{new Date(etapa.data||"1969").toLocaleDateString()}</Text>
                         </View>
                         {etapa.nota ? <View style={{ ...styles.nota, backgroundColor: corNota(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>
-                            <Text style={{ textAlign: "center", color: corNotaTexto(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>{etapa.nota.toLocaleString()}</Text>
+                            <Text style={{ fontWeight: "bold", textAlign: "center", color: corNotaTexto(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>{etapa.nota.toLocaleString(undefined, { minimumFractionDigits: 1 })}</Text>
                         </View> : <Text>-</Text>}
                     </Pressable></View>
                 )
@@ -72,7 +74,7 @@ export default function Diario({ diario, show, saved, navigation }: DiarioProps)
                             <Text numberOfLines={1}>{new Date(etapa.data||"1969").toLocaleDateString()}</Text>
                         </View>
                         {etapa.nota ? <View style={{ ...styles.nota, backgroundColor: corNota(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>
-                            <Text style={{ textAlign: "center", color: corNotaTexto(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>{etapa.nota.toLocaleString()}</Text>
+                            <Text style={{ fontWeight: "bold", textAlign: "center", color: corNotaTexto(escalarNota(etapa.nota, etapa.notaMaxima, 10)) }}>{etapa.nota.toLocaleString(undefined, { minimumFractionDigits: 1 })}</Text>
                         </View> : <Text>-</Text>}
                     </Pressable></View>
                 )

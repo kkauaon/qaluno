@@ -3,7 +3,7 @@ import { Pressable, SafeAreaView, ScrollView, StyleSheet, ToastAndroid, View, us
 import { RefreshControl } from "react-native-gesture-handler";
 import { Button, Dialog, Menu, Portal, Text } from "react-native-paper";
 import { HorarioIndividual } from "../api/API.ts";
-import { IAluno, IHorario } from "../api/APITypes.ts";
+import { IAluno, IDiario, IHorario } from "../api/APITypes.ts";
 import MMKV from "../api/Database.ts";
 import { DEFAULT_SEMESTRE, randomHexColor } from "../helpers/Util.ts";
 import { useMMKVString } from "react-native-mmkv";
@@ -65,10 +65,20 @@ export default function Home({ navigation }): React.JSX.Element {
 
 	const [cores,setCores] = useState<{id:number,c:string}[]>([])
 
+	const [diarios, setDiarios] = useState<IDiario[]>([])
+
     useEffect(() => {
 		if (!sem) setSem(DEFAULT_SEMESTRE)
 
         const d = MMKV.getString(`horarios.${sem}`)
+
+		const d2 = MMKV.getString(`semestre.${sem}`)
+        let registeredData: IDiario[];
+
+        if (d2) {
+            registeredData = JSON.parse(d2) as IDiario[]
+			setDiarios(registeredData)
+        }
 
         if (d) {
             setHorarios(JSON.parse(d) as IHorario[])
@@ -100,21 +110,8 @@ export default function Home({ navigation }): React.JSX.Element {
         })
 	}, [])
 
-	const corHorario = (id: number): string => {
-		if (cores.find(d => d.id == id)) {
-			return cores.find(d => d.id == id)?.c || "#fff"
-		}
-		
-		const dd = [...cores]
-		
-		dd.push({
-			id: id,
-			c: randomHexColor()
-		})
-
-		setCores(dd)
-
-		return dd.find(d => d.id == id)?.c || "#fff"
+	const corHorario = (id: string): string => {
+		return diarios.find(d => d.descricao == id)?.cor || randomHexColor();
 	}
 
 	// Dialog ao clicar em um horário
@@ -160,7 +157,7 @@ export default function Home({ navigation }): React.JSX.Element {
 				{[7.5, 8.5, 10, 11, 13.5, 14.5, 16, 17].map((s, i) => 
 					<View key={i} style={{ ...styles.HStack, justifyContent: "center" }}>
 						{preenchaArray(horarios.filter((a) => horarioParaNumero(a.horaInicio) == s), 5).map((x,i2,z) => 
-							<Pressable onPress={() => { x.horaInicio ? (setHorarioDialogData(x), setVisible(true)) : null }} key={i2} style={{ ...styles.MateriaHorario, width: (((68 * width) / 384) / z.filter(kj => kj.diaSem == x.diaSem).length), backgroundColor: x.anoLet ? corHorario(x.idDisciplina) : "transparent" }} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }}>
+							<Pressable onPress={() => { x.horaInicio ? (setHorarioDialogData(x), setVisible(true)) : null }} key={i2} style={{ ...styles.MateriaHorario, width: (((68 * width) / 384) / z.filter(kj => kj.diaSem == x.diaSem).length), backgroundColor: x.anoLet ? corHorario(x.descDisciplina) : "transparent" }} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }}>
 								<Text numberOfLines={2} style={{ ...styles.TextoHorario }} variant="labelLarge">{x.descDisciplina}</Text>
 							</Pressable>
 						)}
