@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, ToastAndroid, View, useWindowDimensions } from "react-native";
 import { RefreshControl } from "react-native-gesture-handler";
-import { Button, Dialog, Menu, Portal, Text } from "react-native-paper";
+import { Button, Dialog, Headline, Menu, Portal, Text, useTheme } from "react-native-paper";
 import { HorarioIndividual } from "../api/API.ts";
 import { IAluno, IDiario, IHorario } from "../api/APITypes.ts";
 import MMKV from "../api/Database.ts";
 import { DEFAULT_SEMESTRE, randomHexColor } from "../helpers/Util.ts";
 import { useMMKVString } from "react-native-mmkv";
 import analytics from '@react-native-firebase/analytics';
+import { BottomSheetModal, BottomSheetView, BottomSheetModalProvider, BottomSheetFlatList, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 
 function horarioParaNumero(h: string): number {
 	const j = h.split(":")
@@ -63,9 +64,9 @@ export default function Home({ navigation }): React.JSX.Element {
 
 	const {height, width} = useWindowDimensions();
 
-	const [cores,setCores] = useState<{id:number,c:string}[]>([])
-
 	const [diarios, setDiarios] = useState<IDiario[]>([])
+
+	const theme = useTheme()
 
     useEffect(() => {
 		if (!sem) setSem(DEFAULT_SEMESTRE)
@@ -111,7 +112,7 @@ export default function Home({ navigation }): React.JSX.Element {
 	}, [])
 
 	const corHorario = (id: string): string => {
-		return diarios.find(d => d.descricao == id)?.cor || randomHexColor();
+		return MMKV.getString("cordisciplina."+id) || "#ffffff"
 	}
 
 	// Dialog ao clicar em um horário
@@ -119,10 +120,31 @@ export default function Home({ navigation }): React.JSX.Element {
 	const [horarioDialogData, setHorarioDialogData] = useState<IHorario|null>(null)
 	const hideDialog = () => setVisible(false);
 
-	// Menu de mudar semestre
-	const [menuVisible, setMenuVisible] = useState(false);
-	const openMenu = () => setMenuVisible(true);
-	const closeMenu = () => setMenuVisible(false);
+	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+	// callbacks
+	const handlePresentModalPress = useCallback(() => {
+	  bottomSheetModalRef.current?.present();
+	}, []);
+	const handleSheetChanges = useCallback((index: number) => {
+	  console.log('handleSheetChanges', index);
+	}, []);
+	const renderBackdrop = useCallback(
+		//@ts-ignore  fix later
+		(props) => (
+			<BottomSheetBackdrop
+				{...props}
+				appearsOnIndex={0}
+				disappearsOnIndex={-1}
+				opacity={1}
+				style={[
+					props.style,
+					{backgroundColor: theme.colors.backdrop},
+				  ]}
+			/>
+		),
+		[]
+	);
 
 	const mudaSemestre = (semestr: string) => {
 		setSem(semestr)
@@ -148,7 +170,7 @@ export default function Home({ navigation }): React.JSX.Element {
 				<Text>{"\n"}</Text>
 				<Text variant="titleLarge">Horário das Aulas</Text>
 				<View style={{ ...styles.HStack, justifyContent: 'space-around' }}>
-					{["Seg", "Ter", "Qua", "Qui", "Sex"].map((s, i) =>
+					{["Seg.", "Ter.", "Qua.", "Qui.", "Sex."].map((s, i) =>
 						<View key={i}>
 							<Text variant="labelLarge">{s}</Text>
 						</View>
@@ -158,23 +180,53 @@ export default function Home({ navigation }): React.JSX.Element {
 					<View key={i} style={{ ...styles.HStack, justifyContent: "center" }}>
 						{preenchaArray(horarios.filter((a) => horarioParaNumero(a.horaInicio) == s), 5).map((x,i2,z) => 
 							<Pressable onPress={() => { x.horaInicio ? (setHorarioDialogData(x), setVisible(true)) : null }} key={i2} style={{ ...styles.MateriaHorario, width: (((68 * width) / 384) / z.filter(kj => kj.diaSem == x.diaSem).length), backgroundColor: x.anoLet ? corHorario(x.descDisciplina) : "transparent" }} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }}>
-								<Text numberOfLines={2} style={{ ...styles.TextoHorario }} variant="labelLarge">{x.descDisciplina}</Text>
+								<Text numberOfLines={2} style={{ ...styles.TextoHorario }} variant="labelMedium">{x.descDisciplina}</Text>
 							</Pressable>
 						)}
 					</View>
 				)}
-				<Text variant="titleLarge">{"\n"}Informações do Aluno</Text>
-				<Text variant="titleMedium">Nome: {aluno?.nomePessoa}</Text>
-				<Text variant="titleMedium">Curso: {aluno?.descCurso}</Text>
-				<Text variant="titleMedium">Matrícula: {aluno?.matricula} {"\n"}</Text>
-				<Menu
+
+				<Text variant="labelLarge">{""}</Text>
+
+				<View style={{ ...styles.VStack, borderRadius: 20, padding: 20,  backgroundColor: theme.colors.secondaryContainer }}>
+					<Text style={{ fontWeight: "bold", color: theme.colors.onSecondaryContainer }} variant="titleLarge">Informações do Aluno</Text>
+					<Text style={{ color: theme.colors.onSecondaryContainer }} variant="titleMedium">Nome: {aluno?.nomePessoa}</Text>
+					<Text style={{ color: theme.colors.onSecondaryContainer }} variant="titleMedium">Curso: {aluno?.descCurso}</Text>
+					<Text style={{ color: theme.colors.onSecondaryContainer }} variant="titleMedium">Matrícula: {aluno?.matricula}</Text>					
+				</View>
+
+				<Text variant="labelLarge">{""}</Text>
+
+				{/*<Menu
 					visible={menuVisible}
 					onDismiss={closeMenu}
 					anchor={<Button mode="contained-tonal" onPress={openMenu}>Mudar semestre</Button>}>
 					{["2024.2","2024.1","2023.2","2023.1","2022.2","2022.1"].map((it, idx) => 
 						<Menu.Item key={idx} onPress={() => { mudaSemestre(it), setMenuVisible(false) }} title={it} />
 					)}
-				</Menu>
+				</Menu>*/}
+
+				<Button mode="contained" onPress={handlePresentModalPress}>Mudar Semestre</Button>
+
+				<BottomSheetModal
+					ref={bottomSheetModalRef}
+					onChange={handleSheetChanges}
+					backdropComponent={renderBackdrop}
+					snapPoints={['40%','70%']}
+					enableDynamicSizing={false}
+					backgroundStyle={{backgroundColor: theme.colors.background}}
+					handleIndicatorStyle={{backgroundColor: theme.colors.onBackground}}
+				>
+					<BottomSheetFlatList
+						data={["2025.2","2025.1","2024.2","2024.1","2023.2","2023.1","2022.2","2022.1"]}
+						keyExtractor={(i) => i}
+						renderItem={(it) => it.item == sem ? 
+							<Button mode="contained-tonal" onPress={() => mudaSemestre(it.item)}>{it.item} (Selecionado)</Button> : 
+							<Button mode="contained-tonal" onPress={() => mudaSemestre(it.item)}>{it.item}</Button>
+						}
+						contentContainerStyle={{ ...styles.VStack, padding: 20, rowGap: 10 }}
+					/>
+				</BottomSheetModal>
 			</SafeAreaView>
 		</ScrollView>
 	)
@@ -191,6 +243,7 @@ const styles = StyleSheet.create({
 	},
 	MateriaHorario: {
 		height: 50,
+		padding: 4,
 		backgroundColor: "white",
 		borderRadius: 5,
 	},

@@ -28,29 +28,29 @@ export function compararDatas(a: string, b: string): number {
 
 export const corNota = (num: number): string => {
     if (num > 7.9) {
-        return "green"
+        return "#a1fb8d"
     } else if (num < 8 && num > 5.9) {
-        return "gold"
+        return "#feec8a"
     } else if (num < 6) {
-        return "red"
+        return "#ff8989"
     } else {
-        return "blue"
+        return "#16c946"
     }
 }
 
 export const corNotaTexto = (num: number): string => {
 
     if (num > 7.9) {
-        return "white"
+        return "#0e4502"
     } else if (num < 8 && num > 5.9) {
-        return "black"
+        return "#463c00"
     } else if (num < 6) {
-        return "white"
+        return "#470000"
     } else {
-        return "blue"
+        return "#16c94615"
     }
 }
 
-export const DEFAULT_SEMESTRE = "2024.1"
+export const DEFAULT_SEMESTRE = "2024.2"
 export const QACADEMICO_BASE_URL = 'https://novo.qacademico.ifce.edu.br'
-export const APP_VERSION = 3;
+export const APP_VERSION = 5;

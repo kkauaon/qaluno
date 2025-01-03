@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^5.0.6",
     "@react-native-cookies/cookies": "^6.2.1",
     "@react-native-firebase/analytics": "^18.8.0",
     "@react-native-firebase/app": "^18.8.0",

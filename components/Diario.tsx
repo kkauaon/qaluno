@@ -18,9 +18,9 @@ const verificarN1ouN2 = (ava: IAvaliacao[]) => ava.filter(d => d.idEtapa == '2B'
 const radius = 90;
 const circleCircumference = 2 * Math.PI * radius;
 
-type DiarioProps = { diario: IDiario, saved: string, show: (msg: string) => void, navigation: any }
+type DiarioProps = { cor: string, diario: IDiario, saved: string, show: (msg: string) => void, navigation: any }
 
-export default function Diario({ diario, show, saved, navigation }: DiarioProps): React.JSX.Element {
+export default function Diario({ cor, diario, show, saved, navigation }: DiarioProps): React.JSX.Element {
     const [aval, setAval] = useMMKVString(`avaliacoes.${diario.idDiario}`)
 
     const [ava, setAva] = useState<IAvaliacao[]>([])
@@ -44,7 +44,7 @@ export default function Diario({ diario, show, saved, navigation }: DiarioProps)
             <Text variant="labelSmall">{"\n"}</Text>
             <Pressable style={{ marginHorizontal: -20, paddingHorizontal: 20, paddingVertical: 5 }} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }} onPress={() => navega()}>
                 <View style={{ display: "flex", flexDirection: "row", columnGap: 10, alignItems: "center" }}>
-                    <View style={{ ...styles.quadrado, backgroundColor: diario.cor || randomHexColor() }}></View>
+                    <View style={{ ...styles.quadrado, backgroundColor: cor }}></View>
                     <Text variant="titleMedium">{diario.descricao}</Text>
                 </View>
                 <View style={styles.notas}>

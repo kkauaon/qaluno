@@ -42,6 +42,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './pages/Login';
 import Materiais from './pages/Materiais';
 import Disciplina from './pages/Disciplina';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 const Stack = createNativeStackNavigator();
 
@@ -75,6 +76,7 @@ function App(): React.JSX.Element {
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<PaperProvider theme={isDarkMode ? CombinedDarkTheme : CombinedDefaultTheme}>
+				<BottomSheetModalProvider>
 				<NavigationContainer theme={isDarkMode ? NavigationDarkTheme : CombinedDefaultTheme}>
 					<Stack.Navigator screenOptions={{ headerShown: false }}>
 						<Stack.Screen name="Login" component={Login} />
@@ -82,6 +84,7 @@ function App(): React.JSX.Element {
 						<Stack.Screen name="Disciplina" component={Disciplina} />
 					</Stack.Navigator>
 				</NavigationContainer>
+				</BottomSheetModalProvider>
 			</PaperProvider>			
 		</GestureHandlerRootView>
 

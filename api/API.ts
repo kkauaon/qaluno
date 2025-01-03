@@ -1,6 +1,7 @@
 import CookieManager from '@react-native-cookies/cookies';
 import { IAluno, IAula, IAvaliacao, IDiario, IHorarioIndividual, IMaterialDeAula, IMaterialDeAulaDownloadResponse } from './APITypes.ts';
 import { QACADEMICO_BASE_URL } from '../helpers/Util.ts';
+import MMKV from "../api/Database.ts";
 
 export function Login(matricula: string, senha: string): Promise<IAluno> {
 
@@ -34,6 +35,8 @@ export function Boletim(ano: string, semestre: string): Promise<IDiario[]> {
     return new Promise((res,rej)=> {
         fetch(`${QACADEMICO_BASE_URL}/webapp/api/boletim/disciplinas?anoLetivo=${ano}&periodoLetivo=${semestre}`).then(r => r.json())
         .then(r => {
+            MMKV.set(`verificacoes.${ano}.${semestre}.presencas`, new Date().toLocaleString())
+
             if (r)
                 res(r as IDiario[])
             else
@@ -58,6 +61,8 @@ export function Avaliacoes(diario: number): Promise<IAvaliacao[]> {
     return new Promise((res, rej) => {
         fetch(`${QACADEMICO_BASE_URL}/webapp/api/diarios/aluno/diarios/${diario}/avaliacoes`).then(r => r.json())
         .then(r => {
+            MMKV.set(`verificacoes.notas`, new Date().toLocaleString())
+
             if (r)
                 res(r as IAvaliacao[])
             else

@@ -27,7 +27,7 @@ export interface IDiario {
         faltasAbonadas: number
     },
     etapas: IDiarioEtapa[],
-    cor?: string
+    cor?: string // not used
 }
 
 export interface IDiarioEtapa {

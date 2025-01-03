@@ -38,6 +38,7 @@ function ContainerNota({ etapa }: ContainerNotaProps): React.JSX.Element {
                     : <Text style={{ width: 40, textAlign: "center"}}>  -</Text>
                 }
             </View>
+
         </View>
     )
 }
@@ -50,6 +51,8 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
     const [value, setValue] = useState("notas")
     const [aulas, setAulas] = useState<IAula[]|null>(null)
     const [loading, setLoading] = useState(false)
+    
+    const [ordem, setOrdem] = useState("desc")
 
     useEffect(() => {
         setAva(JSON.parse(MMKV.getString(`avaliacoes.${diario.idDiario}`)||"[]") as IAvaliacao[])
@@ -72,7 +75,7 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
             <SafeAreaView style={{ padding: 20 }}>
                 <View style={{ marginHorizontal: -20, paddingHorizontal: 20, paddingVertical: 5 }} >
                     <View style={{ display: "flex", flexDirection: "row", columnGap: 10, alignItems: "center" }}>
-                        <View style={{ ...styles.quadrado, backgroundColor: diario.cor || randomHexColor() }}></View>
+                        <View style={{ ...styles.quadrado, backgroundColor: MMKV.getString("cordisciplina."+diario.descricao) || "#ffffff" }}></View>
                         <Text variant="titleLarge">{diario.descricao}</Text>
                     </View>               
                 </View>
@@ -191,20 +194,25 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
                         <Text variant="labelLarge">{(diario.etapas.find(e => e.sigla == "N1")?.nota != null && diario.etapas.find(e => e.sigla == "N2")?.nota != null) ? diario.etapas.find(e => e.sigla == "MF")?.nota || "-" : "-"}</Text>
                     </View>
                 </View> : <View>
-                    <Text>{"\n"}</Text>
+                    <Text>{""}</Text>
                     {aulas == null ? <Button disabled={loading} loading={loading} mode="contained" onPress={() => carregarAulas()}>Carregar Aulas</Button> : 
-                    <View style={{ display: 'flex', flexDirection: 'column-reverse', rowGap: 10 }}>
-                        {aulas.filter(s => s.processada).map((aula, i) =>
-                        <View key={i} style={{ ...styles.aula, borderColor: aula.faltas ? 'red' : 'green' }}>
-                            <MaterialCommunityIcons name={aula.faltas ? 'close' : 'check'} size={20} color={aula.faltas ? 'red' : 'green'} />
-                            <View style={{ minWidth: "90%", maxWidth: "90%" }}>
-                                <Text>{aula.conteudo}</Text>
-                                <Text style={styles.dataaula}>{`Aula ministrada em ${new Date(aula.dtAulaMinistrada).toLocaleDateString()} ${aula.horaInicio.split("T")[1].slice(0, 5)}~${aula.horaTermino.split("T")[1].slice(0, 5)}`}</Text>
-                                <Text style={styles.dataaula}>{`Presenças: ${aula.numeroDeAulas - aula.faltas}/${aula.numeroDeAulas}`}</Text>
-                            </View>
-                            
+                    <View style={{ display:'flex', width: "auto", flexDirection: 'column', rowGap: 10}}>
+                        <View style={{ display: 'flex', flexDirection: 'row', justifyContent:'flex-end'}}>
+                            <Button onPress={() => setOrdem(ordem=="desc"?"asc":"desc")} contentStyle={{flexDirection: 'row-reverse'}} icon={ordem=="desc"?"sort-clock-descending-outline":"sort-clock-ascending-outline"} mode="text">{ordem == "desc"?"Mais recente primeiro":"Mais antigo primeiro"}</Button>
                         </View>
-                        )}
+                        <View style={{ display: 'flex', flexDirection: ordem=="desc"?'column-reverse':'column', rowGap: 10 }}>
+                            {aulas.filter(s => s.processada).map((aula, i) =>
+                            <View key={i} style={{ ...styles.aula, borderColor: aula.faltas ? 'red' : 'green' }}>
+                                <MaterialCommunityIcons name={aula.faltas ? 'close' : 'check'} size={20} color={aula.faltas ? 'red' : 'green'} />
+                                <View style={{ minWidth: "90%", maxWidth: "90%" }}>
+                                    <Text>{aula.conteudo}</Text>
+                                    <Text style={styles.dataaula}>{`Aula ministrada em ${new Date(aula.dtAulaMinistrada).toLocaleDateString()} ${aula.horaInicio.split("T")[1].slice(0, 5)}~${aula.horaTermino.split("T")[1].slice(0, 5)}`}</Text>
+                                    <Text style={styles.dataaula}>{`Presenças: ${aula.numeroDeAulas - aula.faltas}/${aula.numeroDeAulas}`}</Text>
+                                </View>
+                                
+                            </View>
+                            )}
+                        </View>
                     </View>}
                 </View>}
 

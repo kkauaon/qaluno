@@ -52,18 +52,15 @@ export default function Grades({ navigation }): React.JSX.Element {
         
         // Produção apenas ----
 
-        if (!__DEV__) {}
+        if (!__DEV__) {
         setRefreshing(true);
         //@ts-ignore
         Login(MMKV.getString("matricula"), MMKV.getString("senha")).then(() => {
             // @ts-ignore
             Boletim(sem.split(".")[0], sem.split(".")[1]).then(async dataa => {
-                for (let i = 0; i < dataa.length; i++) {
-                    if (registeredData && !registeredData[i].cor) {
-                        console.log(`Atribuindo cor para ${dataa[i].descricao}`)
-                        dataa[i].cor = randomHexColor();
-                    } else if (registeredData && registeredData[i].cor) {
-                        dataa[i].cor = registeredData[i].cor
+                for (let diario of dataa) {
+                    if (!MMKV.getString("cordisciplina." + diario.descricao)) {
+                        MMKV.set("cordisciplina." + diario.descricao, randomHexColor())
                     }
                 }
 
@@ -79,7 +76,7 @@ export default function Grades({ navigation }): React.JSX.Element {
             ToastAndroid.show("Falha no login", ToastAndroid.SHORT)
             setRefreshing(false);
         })
-
+        }
         // --------------
         
     }, [])
@@ -103,12 +100,9 @@ export default function Grades({ navigation }): React.JSX.Element {
                     MMKV.set(`avaliacoes.${dz.idDiario}`, JSON.stringify(data2))
             }
 
-            for (let i = 0; i < dataa.length; i++) {
-                if (registeredData && !registeredData[i].cor) {
-                    console.log(`Atribuindo cor para ${dataa[i].descricao}`)
-                    dataa[i].cor = randomHexColor();
-                } else if (registeredData && registeredData[i].cor) {
-                    dataa[i].cor = registeredData[i].cor
+            for (let diario of dataa) {
+                if (!MMKV.getString("cordisciplina." + diario.descricao)) {
+                    MMKV.set("cordisciplina." + diario.descricao, randomHexColor())
                 }
             }
 
@@ -151,7 +145,7 @@ export default function Grades({ navigation }): React.JSX.Element {
         setVisible(true);
     }
     const openLink = () => {
-        Linking.openURL("https://github.com/kkauaon/qaluno/releases/latest/download/qaluno.apk").catch(() => ToastAndroid.show("Erro ao abrir link", ToastAndroid.LONG))
+        Linking.openURL("https://github.com/kkauaon/qaluno/releases/latest/download/qaluno.apk").catch(() => ToastAndroid.show("Não foi possível abrir o link.", ToastAndroid.LONG))
     }
 
     return (
@@ -168,10 +162,10 @@ export default function Grades({ navigation }): React.JSX.Element {
 				<Dialog visible={updateAvailable} onDismiss={() => setUpdateAvailable(false)}>
                     <Dialog.Title>Atualização disponível</Dialog.Title>
                     <Dialog.Content>
-                        <Text variant="bodyMedium">Nova versão do aplicativo disponível. Atualize agora.</Text>
+                        <Text variant="bodyMedium">Nova versão do aplicativo disponível. É necessário atualizar para continuar usando o aplicativo.</Text>
                     </Dialog.Content>
                     <Dialog.Actions>
-                        <Button onPress={openLink}>Atualizar</Button>
+                        <Button onPress={openLink}>Baixar</Button>
                     </Dialog.Actions>
 				</Dialog>
 			</Portal>
@@ -192,12 +186,15 @@ export default function Grades({ navigation }): React.JSX.Element {
                     ATENÇÃO! O app não verifica suas notas automaticamente. Role para baixo para verificar se há alguma nota nova.
                 </Banner>
                 <Text variant="titleMedium">{sem?.split(".")[0]} / {sem?.split(".")[1]}</Text>
-                {data.length > 0 ? data.map(diario => <Diario key={diario.idDiario} diario={diario} show={showDialog} navigation={navigation} saved={MMKV.getString(`avaliacoes.${diario.idDiario}`)||"[]"} />) :
+
+                <Text variant="labelSmall">Última verificação de notas: {MMKV.getString(`verificacoes.notas`) || "nunca"}</Text>
+                <Text variant="labelSmall">Última verificação de presenças: {MMKV.getString(`verificacoes.${sem?.split(".")[0]}.${sem?.split(".")[1]}.presencas`) || "nunca"}</Text>
+
+                {data.length > 0 ? data.map(diario => <Diario key={diario.idDiario} cor={MMKV.getString("cordisciplina."+diario.descricao)||"#ffffff"} diario={diario} show={showDialog} navigation={navigation} saved={MMKV.getString(`avaliacoes.${diario.idDiario}`)||"[]"} />) :
                 <View style={styles.faltas}>
                     <Text variant="titleLarge" style={{textAlign: 'center'}}>{"\n"}Sem disciplinas. Role para baixo para atualizar</Text>
                 </View>
-                }
-                <Text>{"\n\n\n"}</Text>                
+                }             
             </SafeAreaView>
 
         </ScrollView>
