@@ -1,9 +1,12 @@
 import CookieManager from '@react-native-cookies/cookies';
-import { IAluno, IAula, IAvaliacao, IDiario, IHorarioIndividual, IMaterialDeAula, IMaterialDeAulaDownloadResponse } from './APITypes.ts';
-import { QACADEMICO_BASE_URL } from '../helpers/Util.ts';
+import { IAluno, IAula, IAvaliacao, IDiario, IHorarioIndividual, IMaterialDeAula, IMaterialDeAulaDownloadResponse, IMaterialDeAulaRecente } from './APITypes.ts';
+import { DEFAULT_SEMESTRE, QACADEMICO_BASE_URL } from '../helpers/Util.ts';
 import MMKV from "../api/Database.ts";
 
-export function Login(matricula: string, senha: string): Promise<IAluno> {
+const ANO = DEFAULT_SEMESTRE.split(".")[0]
+const PER = DEFAULT_SEMESTRE.split(".")[1]
+
+export function Login(matricula: string = "", senha: string = ""): Promise<IAluno> {
 
     return new Promise((res, rej) => {
         CookieManager.removeSessionCookies().then(() => {
@@ -31,7 +34,7 @@ export function Login(matricula: string, senha: string): Promise<IAluno> {
     
 }
 
-export function Boletim(ano: string, semestre: string): Promise<IDiario[]> {
+export function Boletim(ano: string = ANO, semestre: string = PER): Promise<IDiario[]> {
     return new Promise((res,rej)=> {
         fetch(`${QACADEMICO_BASE_URL}/webapp/api/boletim/disciplinas?anoLetivo=${ano}&periodoLetivo=${semestre}`).then(r => r.json())
         .then(r => {
@@ -45,7 +48,7 @@ export function Boletim(ano: string, semestre: string): Promise<IDiario[]> {
     })
 }
 
-export function HorarioIndividual(ano: string, semestre: string): Promise<IHorarioIndividual> {
+export function HorarioIndividual(ano: string = ANO, semestre: string = PER): Promise<IHorarioIndividual> {
     return new Promise((res, rej) => {
         fetch(`${QACADEMICO_BASE_URL}/webapp/api/horario-individual/obter-horario?anoLet=${ano}&periodoLet=${semestre}`).then(r => r.json())
         .then(r => {
@@ -57,7 +60,7 @@ export function HorarioIndividual(ano: string, semestre: string): Promise<IHorar
     })
 }
 
-export function Avaliacoes(diario: number): Promise<IAvaliacao[]> {
+export function Avaliacoes(diario: number = 0): Promise<IAvaliacao[]> {
     return new Promise((res, rej) => {
         fetch(`${QACADEMICO_BASE_URL}/webapp/api/diarios/aluno/diarios/${diario}/avaliacoes`).then(r => r.json())
         .then(r => {
@@ -71,7 +74,7 @@ export function Avaliacoes(diario: number): Promise<IAvaliacao[]> {
     })
 }
 
-export function ListarAulas(diario: number): Promise<IAula[]> {
+export function ListarAulas(diario: number = 0): Promise<IAula[]> {
     return new Promise((res, rej) => {
         fetch(`${QACADEMICO_BASE_URL}/webapp/api/diarios/aluno/diarios/${diario}/aulas`).then(r => r.json())
         .then(r => {
@@ -83,7 +86,7 @@ export function ListarAulas(diario: number): Promise<IAula[]> {
     })    
 }
 
-export function MaterialDeAula(diario: number): Promise<IMaterialDeAula[]> {
+export function MaterialDeAula(diario: number = 0): Promise<IMaterialDeAula[]> {
     return new Promise((res, rej) => {
         fetch(`${QACADEMICO_BASE_URL}/webapp/api/diarios/aluno/diarios/${diario}/materiais-de-aula`).then(r => r.json())
         .then(r => {
@@ -95,7 +98,19 @@ export function MaterialDeAula(diario: number): Promise<IMaterialDeAula[]> {
     })
 }
 
-export function LinkMaterialDeAula(material: number): Promise<string> {
+export function MateriaisDeAulaRecentes(pagina: number = 0): Promise<IMaterialDeAulaRecente[]> {
+    return new Promise((res, rej) => {
+        fetch(`${QACADEMICO_BASE_URL}/webapp/api/dashboard/aluno/materiais-de-aula?pagina=${pagina}`).then(r => r.json())
+        .then(r => {
+            if (r)
+                res(r as IMaterialDeAulaRecente[])
+            else
+                res([])
+        }).catch(rej)
+    })
+}
+
+export function LinkMaterialDeAula(material: number = 0): Promise<string> {
     return new Promise((res, rej) => {
         fetch(`${QACADEMICO_BASE_URL}/webapp/api/materiais-de-aula/aluno/download?idMaterialAula=${material}`).then(r => r.json())
         .then(r => {

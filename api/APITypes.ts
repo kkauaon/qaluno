@@ -111,6 +111,18 @@ export interface IMaterialDeAula {
     linkExterno: string|null
 }
 
+export interface IMaterialDeAulaRecente {
+    id: number,
+    idPauta: number,
+    idPessoaProfessor: number,
+    descricao: string,
+    arquivo: string,
+    nomeProfessor: string,
+    linkExterno: string|null,
+    tipoMaterialAula: number,
+    dataMaterialAula: string
+}
+
 export interface IMaterialDeAulaDownloadResponse {
     id: number,
     nome: string

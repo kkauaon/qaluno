@@ -47,13 +47,12 @@ export default function Entrar({ navigation }): React.JSX.Element {
                     sem = DEFAULT_SEMESTRE
                 }
 
-                // @ts-ignore
                 await HorarioIndividual(sem.split(".")[0], sem.split(".")[1]).then(data => {
                     MMKV.set(`horarios.${sem}`, JSON.stringify(data.horarios))
                 }).catch(() => null)
 
                 setRefreshing(false);
-                // @ts-ignore
+                // @ts-ignore   typings
                 navigation.replace("Home")
             }).catch((err) => {
                 ToastAndroid.show(err, ToastAndroid.LONG)

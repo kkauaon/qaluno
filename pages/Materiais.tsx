@@ -40,8 +40,7 @@ export default function Materials({ navigation }): React.JSX.Element {
     const onRefresh = useCallback(() => {
         setRefreshing(true);
 
-        // @ts-ignore
-        Boletim(sem.split(".")[0], sem.split(".")[1]).then(async dataa => {
+        Boletim(sem?.split(".")[0], sem?.split(".")[1]).then(async dataa => {
             for (const dz of dataa) {
                 const data2 = await MaterialDeAula(dz.idDiario).catch(() => {
                     console.log('Falha ao obter material de aula para a disciplina: ' + dz.descricao)

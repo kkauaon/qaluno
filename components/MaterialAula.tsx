@@ -7,6 +7,7 @@ import { compararDatas, randomHexColor } from "../helpers/Util.ts"
 // @ts-ignore
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinkMaterialDeAula } from "../api/API.ts"
+import MMKV from "../api/Database.ts"
 
 type MaterialAulaProps = { diario: IDiario, saved: string, show: (msg: string) => void }
 
@@ -42,7 +43,7 @@ export default function MaterialAula({ diario, show, saved }: MaterialAulaProps)
             <Text variant="labelSmall">{"\n"}</Text>
             <Pressable style={{ marginHorizontal: -20, paddingHorizontal: 20, paddingVertical: 10 }} android_ripple={{ color: "rgba(0,0,0,.2)", borderless: false }} onPress={() => console.log('asd')}>
                 <View style={{ display: "flex", flexDirection: "row", columnGap: 10, alignItems: "center" }}>
-                    <View style={{ ...styles.quadrado, backgroundColor: randomHexColor() }}></View>
+                    <View style={{ ...styles.quadrado, backgroundColor: MMKV.getString("cordisciplina."+diario.descricao) || "#ffffff" }}></View>
                     <Text variant="titleMedium">{diario.descricao}</Text>
                 </View>            
             </Pressable>

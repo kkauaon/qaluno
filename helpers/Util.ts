@@ -1,3 +1,8 @@
+import { MateriaisDeAulaRecentes } from "../api/API";
+import { IMaterialDeAula, IMaterialDeAulaRecente } from "../api/APITypes";
+import MMKV from "../api/Database";
+
+// refactor to randomColor();
 export function randomHexColor(): string {
     const hue = Math.floor(Math.random() * 360)
     const saturation = 90 + Math.floor(Math.random() * 10)
@@ -48,6 +53,38 @@ export const corNotaTexto = (num: number): string => {
         return "#470000"
     } else {
         return "#16c94615"
+    }
+}
+
+export const verificarMaterialNovo = (): IMaterialDeAulaRecente[] => {
+    const materiaisNovos: IMaterialDeAulaRecente[] = [];
+
+    MateriaisDeAulaRecentes().then(materiais => {
+        materiais.forEach(m => {
+            const registrados = JSON.parse(MMKV.getString(`materiais.${m.idPauta}`)||"[]") as IMaterialDeAula[]
+
+            if (!registrados.some(m2 => m2.id == m.id)) {
+                materiaisNovos.push(m);
+
+                registrados.push(convertMaterialDeAulaRecenteToMaterialDeAula(m))
+                MMKV.set(`materiais.${m.idPauta}`, JSON.stringify(registrados));
+            }
+        })
+    }).catch(err => {
+        return materiaisNovos;
+    })
+
+    return materiaisNovos;
+}
+
+export const convertMaterialDeAulaRecenteToMaterialDeAula = (m: IMaterialDeAulaRecente): IMaterialDeAula => {
+    return {
+        data: m.dataMaterialAula,
+        descricao: m.descricao,
+        id: m.id,
+        linkExterno: m.linkExterno,
+        nomeArquivo: m.arquivo,
+        tipoMaterialAula: m.tipoMaterialAula
     }
 }
 

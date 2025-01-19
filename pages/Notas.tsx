@@ -54,10 +54,10 @@ export default function Grades({ navigation }): React.JSX.Element {
 
         if (!__DEV__) {
         setRefreshing(true);
-        //@ts-ignore
+
         Login(MMKV.getString("matricula"), MMKV.getString("senha")).then(() => {
-            // @ts-ignore
-            Boletim(sem.split(".")[0], sem.split(".")[1]).then(async dataa => {
+
+            Boletim(sem?.split(".")[0], sem?.split(".")[1]).then(async dataa => {
                 for (let diario of dataa) {
                     if (!MMKV.getString("cordisciplina." + diario.descricao)) {
                         MMKV.set("cordisciplina." + diario.descricao, randomHexColor())
@@ -91,8 +91,7 @@ export default function Grades({ navigation }): React.JSX.Element {
             registeredData = JSON.parse(d) as IDiario[]
         }
 
-        // @ts-ignore
-        Boletim(sem.split(".")[0], sem.split(".")[1]).then(async dataa => {
+        Boletim(sem?.split(".")[0], sem?.split(".")[1]).then(async dataa => {
             for (const dz of dataa) {
                 const data2 = await Avaliacoes(dz.idDiario).catch(() => null)
 
@@ -119,7 +118,7 @@ export default function Grades({ navigation }): React.JSX.Element {
                 MMKV.set(`logged`, false)
                 navigation.replace("Login")
             } else {
-                //@ts-ignore
+
                 Login(MMKV.getString("matricula"), MMKV.getString("senha")).then(() => {
                     setRefreshing(false);
                     

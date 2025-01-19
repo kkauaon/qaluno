@@ -97,8 +97,7 @@ export default function Home({ navigation }): React.JSX.Element {
 	const onRefresh = useCallback(() => {
         setRefreshing(true);
 
-		// @ts-ignore
-		HorarioIndividual(sem.split(".")[0], sem.split(".")[1]).then(data => {
+		HorarioIndividual(sem?.split(".")[0], sem?.split(".")[1]).then(data => {
 			setHorarios(data.horarios)
 			MMKV.set(`horarios.${sem}`, JSON.stringify(data.horarios))
 			if (!__DEV__) analytics().logEvent('recarregar_horarios').catch((e) => console.log(e))

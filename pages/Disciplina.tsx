@@ -6,7 +6,7 @@ import { IAula, IAvaliacao, IDiario } from "../api/APITypes.ts";
 import { Circle, G, Svg } from "react-native-svg";
 import { corNota, corNotaTexto, escalarNota, randomHexColor } from "../helpers/Util.ts";
 
-// @ts-ignore
+// @ts-ignore check later
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ListarAulas } from "../api/API.ts";
 
@@ -43,7 +43,7 @@ function ContainerNota({ etapa }: ContainerNotaProps): React.JSX.Element {
     )
 }
 
-// @ts-ignore
+// @ts-ignore   typings
 export default function Disciplina({ route, navigation }): React.JSX.Element {
     const { diario }: { diario: IDiario } = route.params
 
