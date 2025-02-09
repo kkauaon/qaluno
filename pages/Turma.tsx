@@ -223,6 +223,14 @@ export default function Home({ navigation }): React.JSX.Element {
 
 				<Button mode="contained" onPress={() => navigation.push("WebView", { url: "https://novo.qacademico.ifce.edu.br/qacademico/index.asp?t=2082" })}>Renovação de Matrícula</Button>
 
+				<Text variant="labelLarge">{""}</Text>
+
+				<Button mode="contained" onPress={() => navigation.push("WebView", { url: "https://novo.qacademico.ifce.edu.br/webapp/documentos" })}>Solicitar Documentos</Button>
+				
+				<Text variant="labelLarge">{""}</Text>
+
+				<Button mode="contained" onPress={() => navigation.push("WebView", { url: "https://qaluno.netlify.app/rate" })}>Sugestão ou Reportar Bug</Button>
+
 				<BottomSheetModal
 					ref={bottomSheetModalRef}
 					onChange={handleSheetChanges}

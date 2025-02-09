@@ -17,14 +17,15 @@ import {
 	View,
 } from 'react-native';
 
-import { Appbar, PaperProvider, adaptNavigationTheme, useTheme } from 'react-native-paper';
+import { Appbar, IconButton, PaperProvider, adaptNavigationTheme, useTheme } from 'react-native-paper';
 
 import { getFocusedRouteNameFromRoute, NavigationContainer, ParamListBase, RouteProp } from '@react-navigation/native';
 
 import {
 	MD3LightTheme,
 	MD3DarkTheme,
-	Text
+	Text,
+	Button
 } from 'react-native-paper';
 
 import {
@@ -94,7 +95,9 @@ function App(): React.JSX.Element {
 			<PaperProvider theme={isDarkMode ? CombinedDarkTheme : CombinedDefaultTheme}>
 				<BottomSheetModalProvider>
 				<NavigationContainer theme={isDarkMode ? NavigationDarkTheme : CombinedDefaultTheme}>
-					<Stack.Navigator screenOptions={{ headerShown: true }}>
+					<Stack.Navigator screenOptions={({ navigation }) => ({ headerShown: true, headerRight: () => (
+							<IconButton icon="comment-plus-outline" onPress={() => navigation.push("WebView", { url: "https://qaluno.netlify.app/rate" }) }></IconButton>
+						) })}>
 						<Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
 						<Stack.Screen name="Home" component={Tabs} options={({ route }) => ({
 							headerTitle: getHeaderTitle(route),
@@ -110,12 +113,13 @@ function App(): React.JSX.Element {
 							// @ts-ignore fix later typings
 							headerStyle: { backgroundColor: route.params.cor },
 							headerTintColor: "black",
+							headerRight: undefined,
 							headerTitle: (props) => 
 								// @ts-ignore fix later typings
 								<Text numberOfLines={2} variant="titleMedium" style={{marginLeft: -15, marginRight: 60, textAlign: "left", color: "black"}}>{normalizeName(route.params.diario.descricao)}</Text>
 							
 						})} />
-						<Stack.Screen name="WebView" component={WebPage} />
+						<Stack.Screen name="WebView" component={WebPage} options={{ headerRight: undefined }} />
 					</Stack.Navigator>
 				</NavigationContainer>
 				</BottomSheetModalProvider>
