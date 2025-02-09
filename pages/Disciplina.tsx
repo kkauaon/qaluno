@@ -4,7 +4,7 @@ import { Button, Divider, SegmentedButtons, Text } from "react-native-paper";
 import MMKV from "../api/Database.ts";
 import { IAula, IAvaliacao, IDiario } from "../api/APITypes.ts";
 import { Circle, G, Svg } from "react-native-svg";
-import { corNota, corNotaTexto, escalarNota, randomHexColor } from "../helpers/Util.ts";
+import { corNota, corNotaTexto, escalarNota, normalizeName, randomHexColor } from "../helpers/Util.ts";
 
 // @ts-ignore check later
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -45,7 +45,7 @@ function ContainerNota({ etapa }: ContainerNotaProps): React.JSX.Element {
 
 // @ts-ignore   typings
 export default function Disciplina({ route, navigation }): React.JSX.Element {
-    const { diario }: { diario: IDiario } = route.params
+    const { diario, cor }: { diario: IDiario, cor: string } = route.params
 
     const [ava, setAva] = useState<IAvaliacao[]>([])
     const [value, setValue] = useState("notas")
@@ -73,17 +73,17 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
     return (
 		<ScrollView style={{ flex: 1 }}>
             <SafeAreaView style={{ padding: 20 }}>
-                <View style={{ marginHorizontal: -20, paddingHorizontal: 20, paddingVertical: 5 }} >
+                {/*<View style={{ marginHorizontal: -20, paddingHorizontal: 20, paddingVertical: 5 }} >
                     <View style={{ display: "flex", flexDirection: "row", columnGap: 10, alignItems: "center" }}>
-                        <View style={{ ...styles.quadrado, backgroundColor: MMKV.getString("cordisciplina."+diario.descricao) || "#ffffff" }}></View>
+                        <View style={{ ...styles.quadrado, backgroundColor: cor }}></View>
                         <Text variant="titleLarge">{diario.descricao}</Text>
                     </View>               
-                </View>
+                </View>*/}
 
-                <Text variant="titleMedium">{diario.professor || "Sem professor"}</Text>
+                <Text variant="titleMedium">{normalizeName(diario.professor || "Sem professor")}</Text>
                 <Text variant="titleMedium">Carga horária: {diario.cargaHoraria}h</Text>
                 <Text variant="titleMedium">Aulas dadas: {diario.totalAulasDadas}</Text>
-                <Text variant="titleMedium">Situação: {diario.situacaoDisciplina}{"\n"}</Text>
+                <Text variant="titleMedium">Situação: {normalizeName(diario.situacaoDisciplina)}{"\n"}</Text>
 
                 <SegmentedButtons
                     value={value}
@@ -154,7 +154,7 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
                                         fill="transparent"
                                         strokeWidth="30"
                                         strokeDasharray={circleCircumference}
-                                        strokeDashoffset={calculaFreqGrafico(diario.cargaHoraria, diario.totalAulasDadas - diario.totalFaltas)}
+                                        strokeDashoffset={calculaFreqGrafico(diario.totalAulasDadas < diario.cargaHoraria ? diario.cargaHoraria : diario.totalAulasDadas, diario.totalAulasDadas - diario.totalFaltas)}
                                         strokeLinecap="butt"
                                     />
                                     <Circle
@@ -165,7 +165,7 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
                                         fill="transparent"
                                         strokeWidth="30"
                                         strokeDasharray={circleCircumference}
-                                        strokeDashoffset={-calculaFreqGrafico(diario.cargaHoraria, diario.totalFaltas)}
+                                        strokeDashoffset={-calculaFreqGrafico(diario.totalAulasDadas < diario.cargaHoraria ? diario.cargaHoraria : diario.totalAulasDadas, diario.totalFaltas)}
                                         strokeLinecap="butt"
                                     />
                                 </G>
@@ -203,11 +203,11 @@ export default function Disciplina({ route, navigation }): React.JSX.Element {
                         <View style={{ display: 'flex', flexDirection: ordem=="desc"?'column-reverse':'column', rowGap: 10 }}>
                             {aulas.filter(s => s.processada).map((aula, i) =>
                             <View key={i} style={{ ...styles.aula, borderColor: aula.faltas ? 'red' : 'green' }}>
-                                <MaterialCommunityIcons name={aula.faltas ? 'close' : 'check'} size={20} color={aula.faltas ? 'red' : 'green'} />
+                                <MaterialCommunityIcons name={aula.faltas ? 'close' : 'check'} size={20} color={(aula.faltas - aula.faltasAbonadas) ? 'red' : 'green'} />
                                 <View style={{ minWidth: "90%", maxWidth: "90%" }}>
                                     <Text>{aula.conteudo}</Text>
                                     <Text style={styles.dataaula}>{`Aula ministrada em ${new Date(aula.dtAulaMinistrada).toLocaleDateString()} ${aula.horaInicio.split("T")[1].slice(0, 5)}~${aula.horaTermino.split("T")[1].slice(0, 5)}`}</Text>
-                                    <Text style={styles.dataaula}>{`Presenças: ${aula.numeroDeAulas - aula.faltas}/${aula.numeroDeAulas}`}</Text>
+                                    <Text style={styles.dataaula}>{`Presenças: ${aula.numeroDeAulas - aula.faltas + aula.faltasAbonadas}/${aula.numeroDeAulas}`}</Text>
                                 </View>
                                 
                             </View>

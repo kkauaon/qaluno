@@ -88,6 +88,17 @@ export const convertMaterialDeAulaRecenteToMaterialDeAula = (m: IMaterialDeAulaR
     }
 }
 
+export const normalizeName = (name: string): string => {
+    let wordsCapitalize = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"]
+    let wordsNotCapitalize = ["a", "de", "e", "da", "do"]
+
+    let words = name.split(" ")
+    // @ts-ignore ???
+    words = words.map(w => wordsCapitalize.some(wf => wf == w.toLowerCase()) ? w : wordsNotCapitalize.some(wf2 => wf2 == w.toLowerCase()) ? wordsNotCapitalize.find(wf3 => wf3 == w.toLowerCase()) : w.toLowerCase().charAt(0).toUpperCase() + w.toLowerCase().slice(1))
+    
+    return words.join(" ")
+}
+
 export const DEFAULT_SEMESTRE = "2024.2"
 export const QACADEMICO_BASE_URL = 'https://novo.qacademico.ifce.edu.br'
-export const APP_VERSION = 5;
+export const APP_VERSION = 6;

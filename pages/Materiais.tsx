@@ -5,7 +5,7 @@ import MMKV from "../api/Database.ts";
 import { IDiario } from "../api/APITypes.ts";
 import MaterialAula from "../components/MaterialAula.tsx";
 import { Boletim, MaterialDeAula } from "../api/API.ts";
-import { useMMKVString } from "react-native-mmkv";
+import { useMMKVBoolean, useMMKVString } from "react-native-mmkv";
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DEFAULT_SEMESTRE } from "../helpers/Util.ts";
@@ -15,6 +15,7 @@ import analytics from '@react-native-firebase/analytics';
 // @ts-ignore
 export default function Materials({ navigation }): React.JSX.Element {
 	const [sem, setSem] = useMMKVString("current")
+    const [dontshowagain, setdontshowagain] = useMMKVBoolean("dontshowagain.materials")
 
     const [data, setData]  = useState<IDiario[]>([])
 
@@ -73,21 +74,26 @@ export default function Materials({ navigation }): React.JSX.Element {
 				</Dialog>
 			</Portal>
             <SafeAreaView style={{ padding: 20 }}>
-                <Banner
+                {!dontshowagain ? <Banner
                     visible={banner}
                     style={{ margin: -20, marginBottom: 20 }}
                     actions={[
                         {
-                        label: 'OK',
-                        onPress: () => setBanner(false),
+                            label: "Não mostrar novamente",
+                            onPress: () => setdontshowagain(true)
+                        },
+                        {
+                            label: 'OK',
+                            onPress: () => setBanner(false),
                         }
                     ]}
                     icon={({size}) => (
                         <MaterialCommunityIcons name="bell-alert" size={size} />
                     )}
                 >
-                    ATENÇÃO! O app não verifica materiais automaticamente. Role para baixo para verificar se há algum novo material.
+                    ATENÇÃO! O app não verifica materiais automaticamente. Arraste para baixo para verificar se há algum novo material.
                 </Banner>
+                : null }
                 <Text variant="titleMedium">{sem?.split(".")[0]} / {sem?.split(".")[1]}</Text>
                 {data.length > 0 ? data.map(diario => <MaterialAula key={diario.idDiario} diario={diario} show={showDialog} saved={MMKV.getString(`materiais.${diario.idDiario}`)||"[]"} />) :
                 <View style={styles.centered}>

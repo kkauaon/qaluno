@@ -6,7 +6,7 @@ import { IDiario, IVersionHistory } from "../api/APITypes.ts";
 import MMKV from "../api/Database.ts";
 import { useFocusEffect } from "@react-navigation/native";
 import Diario from "../components/Diario.tsx";
-import { useMMKVString } from "react-native-mmkv";
+import { useMMKVBoolean, useMMKVString } from "react-native-mmkv";
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { APP_VERSION, DEFAULT_SEMESTRE, randomHexColor } from "../helpers/Util.ts";
@@ -21,6 +21,7 @@ export default function Grades({ navigation }): React.JSX.Element {
     const [data, setData] = useState<IDiario[]>([])
 
     const [sem, setSem] = useMMKVString("current")
+    const [dontshowagain, setdontshowagain] = useMMKVBoolean("dontshowagain.grades")
 
     useFocusEffect(
         useCallback(() => {
@@ -161,7 +162,7 @@ export default function Grades({ navigation }): React.JSX.Element {
 				<Dialog visible={updateAvailable} onDismiss={() => setUpdateAvailable(false)}>
                     <Dialog.Title>Atualização disponível</Dialog.Title>
                     <Dialog.Content>
-                        <Text variant="bodyMedium">Nova versão do aplicativo disponível. É necessário atualizar para continuar usando o aplicativo.</Text>
+                    <Text variant="bodyMedium">Nova versão do aplicativo disponível. É necessário atualizar para continuar usando o aplicativo.{"\n\n"}Ao clicar em baixar, o download deve começar automaticamente, caso não, copie o link e insira manualmente no seu navegador.</Text>
                     </Dialog.Content>
                     <Dialog.Actions>
                         <Button onPress={openLink}>Baixar</Button>
@@ -169,29 +170,34 @@ export default function Grades({ navigation }): React.JSX.Element {
 				</Dialog>
 			</Portal>
             <SafeAreaView style={{ padding: 20 }}>
-                <Banner
+                {!dontshowagain ? <Banner
                     visible={banner}
                     style={{ margin: -20, marginBottom: 20 }}
                     actions={[
                         {
-                        label: 'OK',
-                        onPress: () => setBanner(false),
+                            label: "Não mostrar novamente",
+                            onPress: () => setdontshowagain(true)
+                        },
+                        {
+                            label: 'Ok',
+                            onPress: () => setBanner(false),
                         }
                     ]}
                     icon={({size}) => (
                         <MaterialCommunityIcons name="bell-alert" size={size} />
                     )}
                 >
-                    ATENÇÃO! O app não verifica suas notas automaticamente. Role para baixo para verificar se há alguma nota nova.
+                    ATENÇÃO! O app não verifica suas notas automaticamente. Arraste para baixo para verificar se há alguma nota nova.
                 </Banner>
+                : null }
                 <Text variant="titleMedium">{sem?.split(".")[0]} / {sem?.split(".")[1]}</Text>
 
                 <Text variant="labelSmall">Última verificação de notas: {MMKV.getString(`verificacoes.notas`) || "nunca"}</Text>
                 <Text variant="labelSmall">Última verificação de presenças: {MMKV.getString(`verificacoes.${sem?.split(".")[0]}.${sem?.split(".")[1]}.presencas`) || "nunca"}</Text>
 
                 {data.length > 0 ? data.map(diario => <Diario key={diario.idDiario} cor={MMKV.getString("cordisciplina."+diario.descricao)||"#ffffff"} diario={diario} show={showDialog} navigation={navigation} saved={MMKV.getString(`avaliacoes.${diario.idDiario}`)||"[]"} />) :
-                <View style={styles.faltas}>
-                    <Text variant="titleLarge" style={{textAlign: 'center'}}>{"\n"}Sem disciplinas. Role para baixo para atualizar</Text>
+                <View style={styles.container}>
+                    <Text variant="titleMedium">{"\n"}Veja como é simples de usar:{"\n"}1. Arraste para baixo toda vez que quiser verificar suas notas!{"\n"}2. As presenças são atualizadas automaticamente!{"\n"}3. Como é sua primeira vez, comece arrastando para baixo!</Text>
                 </View>
                 }             
             </SafeAreaView>
@@ -230,5 +236,10 @@ const styles = StyleSheet.create({
         display: "flex",
         justifyContent: "center",
         alignItems: "center"
+    },
+    container: {
+        display: "flex",
+        justifyContent: "flex-start",
+        textAlign: "left"
     }
 })

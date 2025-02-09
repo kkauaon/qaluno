@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, ToastAndroid, View, useWindowDimensions } from "react-native";
 import { RefreshControl } from "react-native-gesture-handler";
-import { Button, Dialog, Headline, Menu, Portal, Text, useTheme } from "react-native-paper";
+import { Button, Dialog, Divider, Headline, Menu, Portal, Text, useTheme } from "react-native-paper";
 import { HorarioIndividual } from "../api/API.ts";
 import { IAluno, IDiario, IHorario } from "../api/APITypes.ts";
 import MMKV from "../api/Database.ts";
-import { DEFAULT_SEMESTRE, randomHexColor } from "../helpers/Util.ts";
+import { DEFAULT_SEMESTRE, normalizeName, randomHexColor } from "../helpers/Util.ts";
 import { useMMKVString } from "react-native-mmkv";
 import analytics from '@react-native-firebase/analytics';
 import { BottomSheetModal, BottomSheetView, BottomSheetModalProvider, BottomSheetFlatList, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
@@ -87,6 +87,12 @@ export default function Home({ navigation }): React.JSX.Element {
             setHorarios([])
         }
 
+		for (let hr of horarios) {
+			if (!MMKV.getString("cordisciplina." + hr.descDisciplina)) {
+				MMKV.set("cordisciplina." + hr.descDisciplina, randomHexColor())
+			}
+		}
+
 		const u = MMKV.getString(`usuario`)
 
 		if (u) {
@@ -154,9 +160,9 @@ export default function Home({ navigation }): React.JSX.Element {
 		<ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} style={{ flex: 1 }}>
 			<Portal>
 				<Dialog visible={visible} onDismiss={hideDialog}>
-				<Dialog.Title>{horarioDialogData?.descDisciplina}</Dialog.Title>
+				<Dialog.Title style={{fontWeight:"bold", fontSize: 18, lineHeight: 24}}>{horarioDialogData?.descDisciplina}</Dialog.Title>
 					<Dialog.Content>
-						<Text variant="bodyMedium">Professor: {horarioDialogData?.nomeProfessor}</Text>
+						<Text variant="bodyMedium">Professor: {normalizeName(horarioDialogData?.nomeProfessor||"Sem professor")}</Text>
 						<Text variant="bodyMedium">Início: {horarioDialogData?.horaInicio}</Text>
 						<Text variant="bodyMedium">Fim: {horarioDialogData?.horaFinal}</Text>
 						<Text variant="bodyMedium">Sala: {horarioDialogData?.siglaSala} ({horarioDialogData?.descSala})</Text>
@@ -167,7 +173,8 @@ export default function Home({ navigation }): React.JSX.Element {
 			<SafeAreaView style={{ padding: 20 }}>
 				<Text variant="titleMedium">{sem?.split(".")[0]} / {sem?.split(".")[1]}</Text>
 				<Text>{"\n"}</Text>
-				<Text variant="titleLarge">Horário das Aulas</Text>
+				<Text variant="titleLarge" style={{fontWeight: "bold"}}>Horário das Aulas</Text>
+				<Divider bold />
 				<View style={{ ...styles.HStack, justifyContent: 'space-around' }}>
 					{["Seg.", "Ter.", "Qua.", "Qui.", "Sex."].map((s, i) =>
 						<View key={i}>
@@ -189,6 +196,7 @@ export default function Home({ navigation }): React.JSX.Element {
 
 				<View style={{ ...styles.VStack, borderRadius: 20, padding: 20,  backgroundColor: theme.colors.secondaryContainer }}>
 					<Text style={{ fontWeight: "bold", color: theme.colors.onSecondaryContainer }} variant="titleLarge">Informações do Aluno</Text>
+					<Divider bold />
 					<Text style={{ color: theme.colors.onSecondaryContainer }} variant="titleMedium">Nome: {aluno?.nomePessoa}</Text>
 					<Text style={{ color: theme.colors.onSecondaryContainer }} variant="titleMedium">Curso: {aluno?.descCurso}</Text>
 					<Text style={{ color: theme.colors.onSecondaryContainer }} variant="titleMedium">Matrícula: {aluno?.matricula}</Text>					
@@ -206,6 +214,14 @@ export default function Home({ navigation }): React.JSX.Element {
 				</Menu>*/}
 
 				<Button mode="contained" onPress={handlePresentModalPress}>Mudar Semestre</Button>
+
+				<Text variant="labelLarge">{""}</Text>
+
+				<Button mode="contained" onPress={() => navigation.push("WebView", { url: "https://novo.qacademico.ifce.edu.br/webapp/dashboard" })}>Site Q-Acadêmico</Button>
+
+				<Text variant="labelLarge">{""}</Text>
+
+				<Button mode="contained" onPress={() => navigation.push("WebView", { url: "https://novo.qacademico.ifce.edu.br/qacademico/index.asp?t=2082" })}>Renovação de Matrícula</Button>
 
 				<BottomSheetModal
 					ref={bottomSheetModalRef}

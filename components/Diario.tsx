@@ -36,7 +36,7 @@ export default function Diario({ cor, diario, show, saved, navigation }: DiarioP
     }, [aval])
 
     const navega = () => {
-        navigation.push("Disciplina", { diario: diario })
+        navigation.push("Disciplina", { diario: diario, cor: cor })
     }
 
     return (
@@ -102,7 +102,7 @@ export default function Diario({ cor, diario, show, saved, navigation }: DiarioP
                                 fill="transparent"
                                 strokeWidth="30"
                                 strokeDasharray={circleCircumference}
-                                strokeDashoffset={calculaFreqGrafico(diario.cargaHoraria, diario.totalAulasDadas - diario.totalFaltas)}
+                                strokeDashoffset={calculaFreqGrafico(diario.totalAulasDadas < diario.cargaHoraria ? diario.cargaHoraria : diario.totalAulasDadas, diario.totalAulasDadas - diario.totalFaltas)}
                                 strokeLinecap="butt"
                             />
                             <Circle
@@ -113,7 +113,7 @@ export default function Diario({ cor, diario, show, saved, navigation }: DiarioP
                                 fill="transparent"
                                 strokeWidth="30"
                                 strokeDasharray={circleCircumference}
-                                strokeDashoffset={-calculaFreqGrafico(diario.cargaHoraria, diario.totalFaltas)}
+                                strokeDashoffset={-calculaFreqGrafico(diario.totalAulasDadas < diario.cargaHoraria ? diario.cargaHoraria : diario.totalAulasDadas, diario.totalFaltas)}
                                 strokeLinecap="butt"
                             />
                         </G>

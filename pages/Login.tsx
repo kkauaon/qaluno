@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
-import { Button, Text, TextInput } from "react-native-paper";
-import { SafeAreaView, ToastAndroid, Image } from "react-native";
+import { Button, Dialog, Portal, Text, TextInput } from "react-native-paper";
+import { SafeAreaView, ToastAndroid, Image, useColorScheme, Linking } from "react-native";
 import { HorarioIndividual, Login } from "../api/API.ts";
 import MMKV from "../api/Database.ts";
-import { DEFAULT_SEMESTRE } from "../helpers/Util.ts";
+import { APP_VERSION, DEFAULT_SEMESTRE } from "../helpers/Util.ts";
 
 import analytics from '@react-native-firebase/analytics';
+import { IVersionHistory } from "../api/APITypes.ts";
 
 // @ts-ignore
 export default function Entrar({ navigation }): React.JSX.Element {
     const [matr, setMatr] = useState<string>("")
     const [senha, setSenha] = useState<string>("")
     const [refreshing, setRefreshing] = useState(false)
+    const colorScheme = useColorScheme();
+    const [updateAvailable, setUpdateAvailable] = useState(false);
+
+    const openLink = () => {
+        Linking.openURL("https://github.com/kkauaon/qaluno/releases/latest/download/qaluno.apk").catch(() => ToastAndroid.show("Não foi possível abrir o link.", ToastAndroid.LONG))
+    }
 
     useEffect(() => {
         if (!__DEV__) analytics().setAnalyticsCollectionEnabled(true);
@@ -19,6 +26,14 @@ export default function Entrar({ navigation }): React.JSX.Element {
         const islog = MMKV.getBoolean("logged")
         if (islog) {
             navigation.replace("Home")
+        } else {
+            fetch('https://raw.githubusercontent.com/kkauaon/qaluno/main/version-history.json')
+                .then(r => r.json())
+                .then((res: IVersionHistory) => {
+                    if (res.latest > APP_VERSION) {
+                        setUpdateAvailable(true)
+                    }
+                }).catch(() => null)
         }
 
         const m = MMKV.getString("matricula")
@@ -66,7 +81,18 @@ export default function Entrar({ navigation }): React.JSX.Element {
 
     return (
         <SafeAreaView style={{ flex: 1, display: 'flex', flexDirection: 'column', rowGap: 20, justifyContent: 'center', alignItems: 'center' }}>
-            <Image source={require('../img/app_icon.png')} style={{ width: 128, height: 128 }} />
+            <Portal>
+				<Dialog visible={updateAvailable} onDismiss={() => setUpdateAvailable(false)}>
+                    <Dialog.Title>Atualização disponível</Dialog.Title>
+                    <Dialog.Content>
+                        <Text variant="bodyMedium">Nova versão do aplicativo disponível. É necessário atualizar para continuar usando o aplicativo.{"\n\n"}Ao clicar em baixar, o download deve começar automaticamente, caso não, copie o link e insira manualmente no seu navegador.</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={openLink}>Baixar</Button>
+                    </Dialog.Actions>
+				</Dialog>
+			</Portal>
+            <Image source={colorScheme == 'dark' ? require('../img/app_icon.png') : require('../img/app_icon_black.png')} style={{ width: 128, height: 128 }} />
             <Text variant="displayMedium">QAluno</Text>
             <Text variant="titleMedium">Aplicativo não oficial do Q-Acadêmico para IFCE</Text>
             <TextInput
@@ -83,6 +109,7 @@ export default function Entrar({ navigation }): React.JSX.Element {
                 onChangeText={text => setSenha(text)}
             />
             <Button loading={refreshing} disabled={refreshing} onPress={() => log()} mode="contained" style={{ width: "80%" }} labelStyle={{ fontSize: 20, lineHeight: 35 }}>Entrar</Button>
+            <Text style={{ position: 'absolute', bottom: 5, right: 5 }} variant="labelSmall">versão do app: {APP_VERSION}</Text>
         </SafeAreaView>
     )
 }

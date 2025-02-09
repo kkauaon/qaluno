@@ -13,18 +13,18 @@ import {
 	ScrollView,
 	StatusBar,
 	StyleSheet,
-	Text,
 	useColorScheme,
 	View,
 } from 'react-native';
 
 import { Appbar, PaperProvider, adaptNavigationTheme, useTheme } from 'react-native-paper';
 
-import { NavigationContainer } from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute, NavigationContainer, ParamListBase, RouteProp } from '@react-navigation/native';
 
 import {
 	MD3LightTheme,
 	MD3DarkTheme,
+	Text
 } from 'react-native-paper';
 
 import {
@@ -43,6 +43,8 @@ import Login from './pages/Login';
 import Materiais from './pages/Materiais';
 import Disciplina from './pages/Disciplina';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { normalizeName } from './helpers/Util';
+import WebPage from './pages/WebPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +72,20 @@ const CombinedDarkTheme = {
 
 const Tab = createMaterialBottomTabNavigator();
 
+function getHeaderTitle(route: RouteProp<ParamListBase, "Home">) {
+	const routeName = getFocusedRouteNameFromRoute(route) ?? 'Grades';
+  
+	switch (routeName) {
+	  case 'Grades':
+		return 'Notas';
+	  case 'Class':
+		return 'Turma';
+	  case 'Materials':
+		return 'Materiais de Aula';
+	}
+  }
+
+
 function App(): React.JSX.Element {
 	const isDarkMode = useColorScheme() === 'dark';
 
@@ -78,10 +94,28 @@ function App(): React.JSX.Element {
 			<PaperProvider theme={isDarkMode ? CombinedDarkTheme : CombinedDefaultTheme}>
 				<BottomSheetModalProvider>
 				<NavigationContainer theme={isDarkMode ? NavigationDarkTheme : CombinedDefaultTheme}>
-					<Stack.Navigator screenOptions={{ headerShown: false }}>
-						<Stack.Screen name="Login" component={Login} />
-						<Stack.Screen name="Home" component={Tabs} />
-						<Stack.Screen name="Disciplina" component={Disciplina} />
+					<Stack.Navigator screenOptions={{ headerShown: true }}>
+						<Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+						<Stack.Screen name="Home" component={Tabs} options={({ route }) => ({
+							headerTitle: getHeaderTitle(route),
+							headerStyle: {
+								backgroundColor: isDarkMode ? CombinedDarkTheme.colors.secondaryContainer : CombinedDefaultTheme.colors.secondaryContainer
+							}
+						})}/>
+						<Stack.Screen name="Disciplina" component={Disciplina} options={({ route }) => ({
+							/*// @ts-ignore fix later typings
+							headerTitle: route.params.diario.descricao,
+							// @ts-ignore fix later typings
+							headerStyle: { backgroundColor: route.params.cor },*/
+							// @ts-ignore fix later typings
+							headerStyle: { backgroundColor: route.params.cor },
+							headerTintColor: "black",
+							headerTitle: (props) => 
+								// @ts-ignore fix later typings
+								<Text numberOfLines={2} variant="titleMedium" style={{marginLeft: -15, marginRight: 60, textAlign: "left", color: "black"}}>{normalizeName(route.params.diario.descricao)}</Text>
+							
+						})} />
+						<Stack.Screen name="WebView" component={WebPage} />
 					</Stack.Navigator>
 				</NavigationContainer>
 				</BottomSheetModalProvider>
@@ -104,6 +138,7 @@ function Tabs(): React.JSX.Element {
 					tabBarIcon: ({ color }) => (
 						<MaterialCommunityIcons name="home" color={color} size={26} />
 					),
+					title: "Turma"
 				}}
 			/>
 			<Tab.Screen
@@ -114,6 +149,7 @@ function Tabs(): React.JSX.Element {
 					tabBarIcon: ({ color }) => (
 						<MaterialCommunityIcons name="school" color={color} size={26} />
 					),
+					title: "Notas"
 				}}
 			/>
 			<Tab.Screen
@@ -124,6 +160,7 @@ function Tabs(): React.JSX.Element {
 					tabBarIcon: ({ color }) => (
 						<MaterialCommunityIcons name="folder" color={color} size={26} />
 					),
+					title: "Materiais"
 				}}
 			/>
 		</Tab.Navigator>
@@ -132,7 +169,12 @@ function Tabs(): React.JSX.Element {
 
 
 const styles = StyleSheet.create({
-
+	quadrado: {
+        backgroundColor: "white",
+        width: 23,
+        height: 23,
+        borderRadius: 5
+    },
 });
 
 export default App;
