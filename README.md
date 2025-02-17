@@ -4,19 +4,13 @@ Aplicativo não-oficial do Q-Acadêmico.
 ![React Native](https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 
-⚠ No momento, funciona apenas para o IFCE, testado nos cursos técnicos integrados.
+⚠ No momento, funciona apenas para o IFCE, testado nos cursos técnicos integrados. O suporte não é garantido para cursos de nível superior.
 
-Horários de Aula           |  Disciplinas e Notas      |  Material de Aula
+Horários de Aula           |  Disciplinas e Notas      |  Aulas e Presenças
 :-------------------------:|:-------------------------:|:-------------------------:
-![Horários de Aula](https://cdn.discordapp.com/attachments/852655974124879944/1203746303222227015/Screenshot_20240204_135524_QAluno.jpg)|![Disciplinas e Notas](https://cdn.discordapp.com/attachments/852655974124879944/1203746302702125067/Screenshot_20240204_135339_QAluno.jpg)|![Material de Aula](https://cdn.discordapp.com/attachments/852655974124879944/1203746302957981696/Screenshot_20240204_135446_QAluno.jpg)
+![Screenshot_1738888017](https://github.com/user-attachments/assets/0af4f986-beed-41fc-bdf2-baa7c2246181)|![Screenshot_1738888008](https://github.com/user-attachments/assets/963ddc7e-5963-45c4-9020-153fb91a0a47)|![Screenshot_1738888096](https://github.com/user-attachments/assets/cf0119d3-0434-4b6b-9e1e-ef0bfb749682)
+
 
 ## Desenvolvimento
-Iniciar o aplicativo em modo desenvolvimento: `yarn start` ou `npm run start`
 
-Gerar APKs para produção: `yarn android --mode release` ou `npm run android -- --mode="release"`
-
-Para gerar APKs de produção, você precisa [gerar uma keystore](https://reactnative.dev/docs/signed-apk-android#generating-an-upload-key) e inserir as seguintes variáveis no `gradle.properties` de acordo com a sua keystore:
-- `QALUNO_UPLOAD_STORE_FILE`
-- `QALUNO_UPLOAD_KEY_ALIAS`
-- `QALUNO_UPLOAD_STORE_PASSWORD`
-- `QALUNO_UPLOAD_KEY_PASSWORD`
+Iniciar o aplicativo em modo desenvolvimento: `yarn start`
