@@ -99,6 +99,6 @@ export const normalizeName = (name: string): string => {
     return words.join(" ")
 }
 
-export const DEFAULT_SEMESTRE = "2024.2"
-export const QACADEMICO_BASE_URL = 'https://novo.qacademico.ifce.edu.br'
-export const APP_VERSION = 6;
+export const DEFAULT_SEMESTRE = "2026.1"
+export const QACADEMICO_BASE_URL = 'https://antigo.qacademico.ifce.edu.br'
+export const APP_VERSION = 7;

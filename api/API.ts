@@ -2,11 +2,60 @@ import CookieManager from '@react-native-cookies/cookies';
 import { IAluno, IAula, IAvaliacao, IDiario, IHorarioIndividual, IMaterialDeAula, IMaterialDeAulaDownloadResponse, IMaterialDeAulaRecente } from './APITypes.ts';
 import { DEFAULT_SEMESTRE, QACADEMICO_BASE_URL } from '../helpers/Util.ts';
 import MMKV from "../api/Database.ts";
+import RSAKeyPair, { encryptedString } from '../helpers/RSA.js';
 
 const ANO = DEFAULT_SEMESTRE.split(".")[0]
 const PER = DEFAULT_SEMESTRE.split(".")[1]
 
-export function Login(matricula: string = "", senha: string = ""): Promise<IAluno> {
+export function Login(matricula: string, senha: string): Promise<IAluno> {
+
+    return new Promise((res, rej) => {
+        CookieManager.removeSessionCookies().then(() => {
+            fetch(`${QACADEMICO_BASE_URL}/qacademico/lib/rsa/gerador_chaves_rsa.asp`, {
+                method: "GET"
+            }).then(r => r.text()).then(r => {
+                let datas = r.split('\r\n')
+
+                // @ts-ignore: Object is possibly 'null'.
+                let d1 = datas[1].trim().match(/([a-z0-9]+)/g)[0]
+                // @ts-ignore: Object is possibly 'null'.
+                let d2 = datas[3].trim().match(/([a-z0-9]+)/g)[0]
+                
+                console.log(d1,d2)
+                const key  = new RSAKeyPair(d1, "", d2)
+
+                const submit = encryptedString(key, "OK")
+                const login = encryptedString(key, matricula)
+                const senhae = encryptedString(key, senha)
+                const tipo = encryptedString(key, "1")
+
+                const data = new URLSearchParams()
+                data.append("Submit", submit)
+                data.append("LOGIN", login)
+                data.append("SENHA", senhae)
+                data.append("TIPO_USU", tipo)
+                console.log(data.toString())
+                fetch(`${QACADEMICO_BASE_URL}/qacademico/lib/validalogin.asp?`+data.toString(), {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    }
+                }).then(r => r.text()).then(z => {
+                    if (z.includes("Acesso negado")) rej("Acesso negado")
+                    else
+                        fetch(`${QACADEMICO_BASE_URL}/webapp/api/autenticacao/usuario-autenticado`).then(r => r.json()).then(usuario => {   
+                            if ((usuario as IAluno).idPessoa)    
+                                res(usuario as IAluno)
+                            else rej("Acesso negado")
+                        }).catch(rej)
+                }).catch(rej)
+            }).catch(rej)
+        }).catch(rej)
+    })
+    
+}
+
+export function NewLogin(matricula: string = "", senha: string = ""): Promise<IAluno> {
 
     return new Promise((res, rej) => {
         CookieManager.removeSessionCookies().then(() => {

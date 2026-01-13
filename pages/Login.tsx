@@ -12,6 +12,7 @@ import { IVersionHistory } from "../api/APITypes.ts";
 export default function Entrar({ navigation }): React.JSX.Element {
     const [matr, setMatr] = useState<string>("")
     const [senha, setSenha] = useState<string>("")
+    const [senhaVisivel, setSenhaVisivel] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
     const colorScheme = useColorScheme();
     const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -105,8 +106,14 @@ export default function Entrar({ navigation }): React.JSX.Element {
                 label="Senha"
                 style={{ width: "80%" }}
                 value={senha}
-                secureTextEntry
+                secureTextEntry={!senhaVisivel}
                 onChangeText={text => setSenha(text)}
+                right={
+                    <TextInput.Icon 
+                        icon={senhaVisivel ? "eye-off" : "eye"} 
+                        onPress={() => setSenhaVisivel(!senhaVisivel)}
+                    />
+                }
             />
             <Button loading={refreshing} disabled={refreshing} onPress={() => log()} mode="contained" style={{ width: "80%" }} labelStyle={{ fontSize: 20, lineHeight: 35 }}>Entrar</Button>
             <Text style={{ position: 'absolute', bottom: 5, right: 5 }} variant="labelSmall">versão do app: {APP_VERSION}</Text>
